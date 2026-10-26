@@ -1,4 +1,3 @@
--- framezero_bridge / server/frameworks/qbcore.lua (QBCore e Qbox)
 -- O Qbox expõe a mesma API de jogador do QBCore. As diferenças
 -- (grupos, inventário ox, qbx_vehicles) ficam no adaptador "qbox".
 

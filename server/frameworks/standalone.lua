@@ -1,4 +1,3 @@
--- framezero_bridge / server/frameworks/standalone.lua (sem framework)
 -- Usado quando nenhum framework é encontrado. Identifica o jogador
 -- pela license da Rockstar; o resto fica para o custom/server.lua.
 
