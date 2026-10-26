@@ -1,4 +1,3 @@
--- framezero_bridge / server/inventory/others.lua
 -- codem-inventory, core_inventory e ak47_inventory, pelas APIs públicas de cada um.
 -- Ainda não testados: toda chamada passa por pcall e devolve um valor seguro se falhar.
 
@@ -25,9 +24,9 @@ end
 -- codem-inventory
 local codem = function() return exports["codem-inventory"] end
 
-FZ.RegisterAdapter("inventory", "codem-inventory", {
+framezero.RegisterAdapter("inventory", "codem-inventory", {
     priority = 22,
-    detect = function() return FZ.IsStarted("codem-inventory") end,
+    detect = function() return framezero.IsStarted("codem-inventory") end,
     init = function() return true end,
 
     getItemCount = function(src, item) return tonumber(safe(function() return codem():GetItemsTotalAmount(src, item) end, 0)) or 0 end,
@@ -50,9 +49,9 @@ FZ.RegisterAdapter("inventory", "codem-inventory", {
 local core = function() return exports.core_inventory end
 local function coreInv(src) return "content-" .. tostring(src) end
 
-FZ.RegisterAdapter("inventory", "core_inventory", {
+framezero.RegisterAdapter("inventory", "core_inventory", {
     priority = 21,
-    detect = function() return FZ.IsStarted("core_inventory") end,
+    detect = function() return framezero.IsStarted("core_inventory") end,
     init = function() return true end,
 
     getItemCount = function(src, item) return tonumber(safe(function() return core():getItemCount(coreInv(src), item) end, 0)) or 0 end,
@@ -66,9 +65,9 @@ FZ.RegisterAdapter("inventory", "core_inventory", {
 -- ak47_inventory
 local ak = function() return exports["ak47_inventory"] end
 
-FZ.RegisterAdapter("inventory", "ak47_inventory", {
+framezero.RegisterAdapter("inventory", "ak47_inventory", {
     priority = 21,
-    detect = function() return FZ.IsStarted("ak47_inventory") end,
+    detect = function() return framezero.IsStarted("ak47_inventory") end,
     init = function() return true end,
 
     getItemCount = function(src, item) return tonumber(safe(function() return ak():GetAmount(src, item) end, 0)) or 0 end,

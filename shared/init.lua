@@ -1,19 +1,19 @@
--- FZ é a tabela interna da bridge. Os scripts NÃO usam FZ direto:
--- eles recebem a API pública via exports.framezero_bridge:GetBridge().
+-- framezero é a tabela interna da bridge. Os scripts NÃO usam framezero direto:
+-- eles recebem a API pública via exports.framezero_bridge:GetFramezero().
 
-FZ = FZ or {}
+framezero = framezero or {}
 
-FZ.Resource = GetCurrentResourceName()
-FZ.Version  = GetResourceMetadata(FZ.Resource, "version", 0) or "0.0.0"
-FZ.IsServer = IsDuplicityVersion()
-FZ.Ready    = false
+framezero.Resource = GetCurrentResourceName()
+framezero.Version  = GetResourceMetadata(framezero.Resource, "version", 0) or "0.0.0"
+framezero.IsServer = IsDuplicityVersion()
+framezero.Ready    = false
 
 -- Adaptadores registrados por tipo, e o escolhido de cada tipo
-FZ.Adapters = { framework = {}, inventory = {}, vehicles = {}, notify = {}, target = {}, progress = {} }
-FZ.Active   = {}
+framezero.Adapters = { framework = {}, inventory = {}, vehicles = {}, notify = {}, target = {}, progress = {} }
+framezero.Active   = {}
 
 -- Funções sobrescritas pelo dono do servidor (custom/server.lua, custom/client.lua)
-FZ.Custom = FZ.Custom or {}
+framezero.Custom = framezero.Custom or {}
 
 
 -- Idioma
@@ -21,7 +21,7 @@ local function lang()
     return Locales[Config.Locale] or Locales["pt-br"]
 end
 
-function FZ.L(key, ...)
+function framezero.L(key, ...)
     local text = lang()[key] or (Locales["en"] and Locales["en"][key]) or key
     if select("#", ...) > 0 then return text:format(...) end
     return text
@@ -32,13 +32,13 @@ end
 local TAG = "^3[framezero]^0 "
 local LEVEL_COLOR = { info = "^2", warn = "^3", error = "^1", debug = "^5" }
 
-function FZ.Log(level, message, ...)
+function framezero.Log(level, message, ...)
     if level == "debug" and not Config.Debug then return end
     if select("#", ...) > 0 then message = message:format(...) end
     print(TAG .. (LEVEL_COLOR[level] or "") .. message .. "^0")
 end
 
-function FZ.Banner(lines)
+function framezero.Banner(lines)
     print("^3[framezero]^0 bridge by piercer")
     for _, line in ipairs(lines) do
         print("^3[framezero]^0 " .. line)
@@ -48,22 +48,22 @@ end
 
 -- Adaptadores
 -- def: { priority = n, detect = function() -> bool, init = function() -> bool, ...métodos }
-function FZ.RegisterAdapter(kind, name, def)
+function framezero.RegisterAdapter(kind, name, def)
     def.name = name
     def.priority = def.priority or 0
-    FZ.Adapters[kind][name] = def
+    framezero.Adapters[kind][name] = def
 end
 
-function FZ.IsStarted(resource)
+function framezero.IsStarted(resource)
     local state = GetResourceState(resource)
     return state == "started" or state == "starting"
 end
 
 -- Forçado no config, ou o detectado com maior prioridade.
-function FZ.SelectAdapter(kind, forced)
-    local list = FZ.Adapters[kind]
+function framezero.SelectAdapter(kind, forced)
+    local list = framezero.Adapters[kind]
     if forced and forced ~= "auto" then
-        if not list[forced] then FZ.Log("error", FZ.L("adapter_unknown"), forced, kind) end
+        if not list[forced] then framezero.Log("error", framezero.L("adapter_unknown"), forced, kind) end
         return list[forced]
     end
     local best
@@ -77,18 +77,18 @@ end
 
 -- Chama um método do adaptador ativo, avisando uma única vez quando ele não existe.
 local warned = {}
-function FZ.Call(kind, method, ...)
-    local adapter = FZ.Active[kind]
+function framezero.Call(kind, method, ...)
+    local adapter = framezero.Active[kind]
     local fn = adapter and adapter[method]
     if not fn then
         local key = kind .. "." .. method
         if not warned[key] then
             warned[key] = true
-            FZ.Log("warn", FZ.L("not_supported"), method, adapter and adapter.name or kind)
+            framezero.Log("warn", framezero.L("not_supported"), method, adapter and adapter.name or kind)
         end
         return nil
     end
-    FZ.Log("debug", "%s.%s → %s", kind, method, adapter.name)
+    framezero.Log("debug", "%s.%s → %s", kind, method, adapter.name)
     return fn(...)
 end
 
@@ -103,15 +103,15 @@ local NOTIFY_ALIASES = {
     info = "info", inform = "info", primary = "info", importante = "info", azul = "info",
 }
 
-function FZ.NotifyType(value)
+function framezero.NotifyType(value)
     return NOTIFY_ALIASES[string.lower(tostring(value or "info"))] or "info"
 end
 
-function FZ.PositiveInt(value)
+function framezero.PositiveInt(value)
     local n = math.floor(tonumber(value) or 0)
     return n > 0 and n or nil
 end
 
-function FZ.Trim(text)
+function framezero.Trim(text)
     return (tostring(text or ""):gsub("^%s*(.-)%s*$", "%1"))
 end

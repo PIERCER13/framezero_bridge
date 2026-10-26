@@ -1,17 +1,16 @@
--- framezero_bridge / client/core/ui.lua (interface própria (web/))
 -- Prompt, Request (Sim/Não), barra de progresso, texto de ajuda e
 -- notificação. Usada quando o servidor não tem ox_lib.
 
-FZ.UI = {}
+framezero.UI = {}
 
 local function strings()
     return {
-        promptTitle = FZ.L("prompt_title"),
-        confirm = FZ.L("prompt_confirm"),
-        cancel = FZ.L("prompt_cancel"),
-        requestTitle = FZ.L("request_title"),
-        accept = FZ.L("accept"),
-        decline = FZ.L("decline"),
+        promptTitle = framezero.L("prompt_title"),
+        confirm = framezero.L("prompt_confirm"),
+        cancel = framezero.L("prompt_cancel"),
+        requestTitle = framezero.L("request_title"),
+        accept = framezero.L("accept"),
+        decline = framezero.L("decline"),
         acceptKey = Config.Keys.Accept,
         declineKey = Config.Keys.Decline,
     }
@@ -21,7 +20,7 @@ end
 -- Prompt (caixa de texto)
 local promptRespond
 
-FZ.Callback.Register("prompt", function(respond, title, placeholder)
+framezero.Callback.Register("prompt", function(respond, title, placeholder)
     if promptRespond then promptRespond(nil) end
     promptRespond = respond
     SendNUIMessage({ action = "prompt:open", title = title, placeholder = placeholder or "", strings = strings() })
@@ -52,7 +51,7 @@ local function closeRequest(accepted)
     respond(accepted == true)
 end
 
-FZ.Callback.Register("request", function(respond, message, timeoutMs)
+framezero.Callback.Register("request", function(respond, message, timeoutMs)
     if requestRespond then closeRequest(false) end
     requestRespond = respond
     SendNUIMessage({ action = "request:open", message = message, timeout = timeoutMs, strings = strings() })
@@ -66,15 +65,15 @@ end)
 local suffix = tostring(math.random(10000, 99999))
 RegisterCommand("+fz_accept_" .. suffix, function() closeRequest(true) end, false)
 RegisterCommand("+fz_decline_" .. suffix, function() closeRequest(false) end, false)
-RegisterKeyMapping("+fz_accept_" .. suffix, FZ.L("keymap_accept"), "keyboard", Config.Keys.Accept)
-RegisterKeyMapping("+fz_decline_" .. suffix, FZ.L("keymap_decline"), "keyboard", Config.Keys.Decline)
+RegisterKeyMapping("+fz_accept_" .. suffix, framezero.L("keymap_accept"), "keyboard", Config.Keys.Accept)
+RegisterKeyMapping("+fz_decline_" .. suffix, framezero.L("keymap_decline"), "keyboard", Config.Keys.Decline)
 
 
 -- Progresso
 local progressActive = false
 
 -- Retorna true se completou, false se cancelou (X ou morte)
-function FZ.UI.Progress(label, duration, opts)
+function framezero.UI.Progress(label, duration, opts)
     if progressActive then return false end
     opts = opts or {}
     progressActive = true
@@ -100,18 +99,18 @@ end
 
 
 -- Texto de ajuda e notificação
-function FZ.UI.ShowText(text)
+function framezero.UI.ShowText(text)
     SendNUIMessage({ action = "text:show", text = text })
 end
 
-function FZ.UI.HideText()
+function framezero.UI.HideText()
     SendNUIMessage({ action = "text:hide" })
 end
 
-function FZ.UI.Notify(kind, message, duration)
+function framezero.UI.Notify(kind, message, duration)
     SendNUIMessage({ action = "notify", kind = kind, message = message, duration = duration or 5000 })
 end
 
-RegisterNetEvent(FZ.Resource .. ":notify", function(kind, message, duration)
-    FZ.UI.Notify(FZ.NotifyType(kind), message, duration)
+RegisterNetEvent(framezero.Resource .. ":notify", function(kind, message, duration)
+    framezero.UI.Notify(framezero.NotifyType(kind), message, duration)
 end)

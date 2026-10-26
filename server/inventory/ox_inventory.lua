@@ -1,5 +1,3 @@
--- framezero_bridge / server/inventory/ox_inventory.lua
-
 local ox = function() return exports.ox_inventory end
 local items
 
@@ -8,10 +6,10 @@ local function itemData(name)
     return items[name]
 end
 
-FZ.RegisterAdapter("inventory", "ox_inventory", {
+framezero.RegisterAdapter("inventory", "ox_inventory", {
     priority = 30,
 
-    detect = function() return FZ.IsStarted("ox_inventory") end,
+    detect = function() return framezero.IsStarted("ox_inventory") end,
     init = function() return true end,
 
     getItemCount = function(src, item, metadata)

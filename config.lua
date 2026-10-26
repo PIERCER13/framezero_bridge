@@ -2,7 +2,7 @@
 -- a bridge detecta framework, inventário e garagem sozinha.
 Config = {}
 
-Config.Locale = "pt-br"         -- pt-br · en · es
+Config.Locale = "pt-br"         -- pt-br · en · es · fr · de · it · ru · pl · tr · nl · zh-cn
 Config.Debug  = false           -- mostra no console qual adaptador atendeu cada chamada
 
 -- Atualizações

@@ -1,13 +1,13 @@
 -- Usado quando nenhum framework é encontrado. Identifica o jogador
 -- pela license da Rockstar; o resto fica para o custom/server.lua.
 
-FZ.RegisterAdapter("framework", "standalone", {
+framezero.RegisterAdapter("framework", "standalone", {
     priority = -1,
 
     detect = function() return true end,
     init = function()
-        AddEventHandler("playerJoining", function() FZ.Internal.PlayerLoaded(source) end)
-        AddEventHandler("playerDropped", function() FZ.Internal.PlayerUnloaded(source) end)
+        AddEventHandler("playerJoining", function() framezero.Internal.PlayerLoaded(source) end)
+        AddEventHandler("playerDropped", function() framezero.Internal.PlayerUnloaded(source) end)
         return true
     end,
 
@@ -36,6 +36,6 @@ FZ.RegisterAdapter("framework", "standalone", {
     end,
 
     notify = function(src, kind, message, duration)
-        TriggerClientEvent(FZ.Resource .. ":notify", src, kind, message, duration)
+        TriggerClientEvent(framezero.Resource .. ":notify", src, kind, message, duration)
     end,
 })

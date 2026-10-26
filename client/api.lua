@@ -1,20 +1,19 @@
--- framezero_bridge / client/api.lua (API pública do cliente)
--- local Bridge = exports.framezero_bridge:GetBridge()
--- if Bridge.Progress("Fabricando munição", 5000) then ... end
+-- local framezero = exports.framezero_bridge:GetFramezero()
+-- if framezero.Progress("Fabricando munição", 5000) then ... end
 --
 -- Toda função pode ser trocada em custom/client.lua:
--- FZ.Custom.Notify = function(kind, message, duration) ... end
+-- framezero.Custom.Notify = function(kind, message, duration) ... end
 
 local API = {}
 
 local function useOxLib(setting)
-    return setting == "ox_lib" or (setting == "auto" and FZ.IsStarted("ox_lib"))
+    return setting == "ox_lib" or (setting == "auto" and framezero.IsStarted("ox_lib"))
 end
 
 
 -- Interface
 function API.Notify(kind, message, duration)
-    FZ.Client.Notify(kind, message, duration)
+    framezero.Client.Notify(kind, message, duration)
 end
 
 -- Barra de progresso. Retorna true se completou.
@@ -29,37 +28,37 @@ function API.Progress(label, duration, opts)
             disable = { move = opts.disableMove == true, combat = opts.disableControls ~= false, car = opts.disableCar == true },
         }) == true
     end
-    return FZ.UI.Progress(label, duration, opts)
+    return framezero.UI.Progress(label, duration, opts)
 end
 
 function API.ShowText(text)
     if useOxLib(Config.Progress) then return exports.ox_lib:showTextUI(text) end
-    FZ.UI.ShowText(text)
+    framezero.UI.ShowText(text)
 end
 
 function API.HideText()
     if useOxLib(Config.Progress) then return exports.ox_lib:hideTextUI() end
-    FZ.UI.HideText()
+    framezero.UI.HideText()
 end
 
 
 -- Target
 -- options: lista de { label, icon?, distance?, onSelect = function(entity) end, canInteract? = function(entity) end }
 
--- Target próprio do servidor: defina FZ.CustomTarget em custom/client.lua
+-- Target próprio do servidor: defina framezero.CustomTarget em custom/client.lua
 -- com addSphere(id, coords, radius, options), addModel(id, models, options) e remove(id).
 local targetMode
 local function target()
     if targetMode then return targetMode end
     local setting = Config.Target
     if setting == "auto" then
-        setting = (FZ.CustomTarget and "custom")
-            or (FZ.IsStarted("ox_target") and "ox_target")
-            or (FZ.IsStarted("qb-target") and "qb-target")
+        setting = (framezero.CustomTarget and "custom")
+            or (framezero.IsStarted("ox_target") and "ox_target")
+            or (framezero.IsStarted("qb-target") and "qb-target")
             or "none"
     end
-    if setting == "custom" and not FZ.CustomTarget then
-        FZ.Log("error", "Config.Target = \"custom\", mas FZ.CustomTarget não foi definido em custom/client.lua.")
+    if setting == "custom" and not framezero.CustomTarget then
+        framezero.Log("error", "Config.Target = \"custom\", mas framezero.CustomTarget não foi definido em custom/client.lua.")
         setting = "none"
     end
     targetMode = setting
@@ -101,7 +100,7 @@ function API.AddSphere(id, coords, radius, options)
     API.RemoveTarget(id)
     local mode = target()
     if mode == "custom" then
-        FZ.CustomTarget.addSphere(id, coords, radius, options)
+        framezero.CustomTarget.addSphere(id, coords, radius, options)
         zones[id] = { kind = "custom" }
     elseif mode == "ox_target" then
         zones[id] = { kind = "zone", handle = exports.ox_target:addSphereZone({ coords = coords, radius = radius, options = toOx(id, options) }) }
@@ -117,8 +116,8 @@ function API.AddModel(id, models, options)
     API.RemoveTarget(id)
     local mode = target()
     if mode == "custom" then
-        if not FZ.CustomTarget.addModel then return FZ.Log("warn", FZ.L("not_supported"), "AddModel", "custom target") end
-        FZ.CustomTarget.addModel(id, models, options)
+        if not framezero.CustomTarget.addModel then return framezero.Log("warn", framezero.L("not_supported"), "AddModel", "custom target") end
+        framezero.CustomTarget.addModel(id, models, options)
         zones[id] = { kind = "custom" }
     elseif mode == "ox_target" then
         exports.ox_target:addModel(models, toOx(id, options))
@@ -127,7 +126,7 @@ function API.AddModel(id, models, options)
         exports["qb-target"]:AddTargetModel(models, toQb(options))
         zones[id] = { kind = "qb-model", models = models, options = options }
     else
-        FZ.Log("warn", FZ.L("not_supported"), "AddModel", "target: none")
+        framezero.Log("warn", framezero.L("not_supported"), "AddModel", "target: none")
     end
 end
 
@@ -137,7 +136,7 @@ function API.RemoveTarget(id)
     if not zone then return end
     zones[id] = nil
     if zone.kind == "custom" then
-        FZ.CustomTarget.remove(id)
+        framezero.CustomTarget.remove(id)
     elseif zone.kind == "zone" then
         exports.ox_target:removeZone(zone.handle)
     elseif zone.kind == "qb-zone" then
@@ -187,25 +186,25 @@ end)
 
 
 -- Callbacks e jogador
--- Chama um callback registrado no servidor com Bridge.RegisterCallback
+-- Chama um callback registrado no servidor com framezero.RegisterCallback
 function API.TriggerCallback(name, timeoutMs, ...)
-    return FZ.Callback.Await(name, timeoutMs, ...)
+    return framezero.Callback.Await(name, timeoutMs, ...)
 end
 
--- Responde a pedidos do servidor (Bridge.AwaitClient). O handler recebe (respond, ...).
-API.RegisterCallback = FZ.Callback.Register
+-- Responde a pedidos do servidor (framezero.AwaitClient). O handler recebe (respond, ...).
+API.RegisterCallback = framezero.Callback.Register
 
 function API.OnPlayerLoaded(cb)
-    FZ.Client.loaded[#FZ.Client.loaded + 1] = cb
-    if FZ.Client.isLoaded then CreateThread(cb) end
+    framezero.Client.loaded[#framezero.Client.loaded + 1] = cb
+    if framezero.Client.isLoaded then CreateThread(cb) end
 end
 
 function API.IsLoaded()
-    return FZ.Client.isLoaded
+    return framezero.Client.isLoaded
 end
 
 function API.Info()
-    return FZ.Client.Info()
+    return framezero.Client.Info()
 end
 
 
@@ -213,13 +212,13 @@ end
 local Public = {}
 for name, fn in pairs(API) do
     Public[name] = function(...)
-        local custom = FZ.Custom[name]
+        local custom = framezero.Custom[name]
         if custom then return custom(...) end
         return fn(...)
     end
 end
 
-exports("GetBridge", function() return Public end)
+exports("GetFramezero", function() return Public end)
 exports("IsReady", function() return true end)
-FZ.API = Public
-FZ.Ready = true
+framezero.API = Public
+framezero.Ready = true

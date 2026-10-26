@@ -5,7 +5,7 @@
 -- Também carrega a lib/utils.lua do vrp em tempo de execução: não é
 -- preciso editar o fxmanifest com "@vrp/lib/utils.lua".
 
-FZ.Vrp = {}
+framezero.Vrp = {}
 
 local defined
 local FALLBACK_FILES = {
@@ -29,7 +29,7 @@ local function manifestFiles(resource)
     return files
 end
 
-function FZ.Vrp.Scan()
+function framezero.Vrp.Scan()
     if defined then return defined end
     defined = {}
     local resource = Config.Vrp.Resource
@@ -50,44 +50,44 @@ function FZ.Vrp.Scan()
     return defined
 end
 
-function FZ.Vrp.Has(name)
-    return FZ.Vrp.Scan()[name] == true
+function framezero.Vrp.Has(name)
+    return framezero.Vrp.Scan()[name] == true
 end
 
 -- Primeiro nome da lista que existe nesta base
-function FZ.Vrp.Pick(...)
+function framezero.Vrp.Pick(...)
     for i = 1, select("#", ...) do
         local name = select(i, ...)
-        if FZ.Vrp.Has(name) then return name end
+        if framezero.Vrp.Has(name) then return name end
     end
 end
 
-function FZ.Vrp.Count()
+function framezero.Vrp.Count()
     local n = 0
-    for _ in pairs(FZ.Vrp.Scan()) do n = n + 1 end
+    for _ in pairs(framezero.Vrp.Scan()) do n = n + 1 end
     return n
 end
 
 -- creative-modern (Passport) · creative (userSource/userList) · vrpex (getUserId)
-function FZ.Vrp.Flavor()
-    if FZ.Vrp.Has("Passport") then return "creative-modern" end
-    if FZ.Vrp.Has("userSource") or FZ.Vrp.Has("userList") then return "creative" end
+function framezero.Vrp.Flavor()
+    if framezero.Vrp.Has("Passport") then return "creative-modern" end
+    if framezero.Vrp.Has("userSource") or framezero.Vrp.Has("userList") then return "creative" end
     return "vrpex"
 end
 
-function FZ.Vrp.Load()
-    if FZ.Vrp.server then return true end
+function framezero.Vrp.Load()
+    if framezero.Vrp.server then return true end
     local resource = Config.Vrp.Resource
 
     if type(module) ~= "function" then
         local code = LoadResourceFile(resource, "lib/utils.lua")
         if not code then
-            FZ.Log("error", FZ.L("vrp_missing"), resource)
+            framezero.Log("error", framezero.L("vrp_missing"), resource)
             return false
         end
         local chunk, err = load(code, ("@%s/lib/utils.lua"):format(resource))
         if not chunk then
-            FZ.Log("error", "lib/utils.lua: %s", err)
+            framezero.Log("error", "lib/utils.lua: %s", err)
             return false
         end
         chunk()
@@ -95,7 +95,7 @@ function FZ.Vrp.Load()
 
     local Proxy = module(resource, "lib/Proxy")
     local Tunnel = module(resource, "lib/Tunnel")
-    FZ.Vrp.server = Proxy.getInterface("vRP")
-    FZ.Vrp.client = Tunnel.getInterface("vRP")
+    framezero.Vrp.server = Proxy.getInterface("vRP")
+    framezero.Vrp.client = Tunnel.getInterface("vRP")
     return true
 end

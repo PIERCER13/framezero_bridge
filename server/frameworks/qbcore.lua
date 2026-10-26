@@ -12,15 +12,15 @@ local function build(name, priority, resource, getCore)
         priority = priority,
 
         detect = function()
-            return FZ.IsStarted(resource)
+            return framezero.IsStarted(resource)
         end,
 
         init = function()
             Core = getCore()
             AddEventHandler("QBCore:Server:PlayerLoaded", function(p)
-                if p and p.PlayerData then FZ.Internal.PlayerLoaded(p.PlayerData.source) end
+                if p and p.PlayerData then framezero.Internal.PlayerLoaded(p.PlayerData.source) end
             end)
-            AddEventHandler("QBCore:Server:OnPlayerUnload", function(src) FZ.Internal.PlayerUnloaded(src) end)
+            AddEventHandler("QBCore:Server:OnPlayerUnload", function(src) framezero.Internal.PlayerUnloaded(src) end)
             return Core ~= nil
         end,
 
@@ -43,7 +43,7 @@ local function build(name, priority, resource, getCore)
             local p = player(src)
             if not p then return nil end
             local info = p.PlayerData.charinfo or {}
-            return FZ.Trim(("%s %s"):format(info.firstname or "", info.lastname or ""))
+            return framezero.Trim(("%s %s"):format(info.firstname or "", info.lastname or ""))
         end,
 
         hasPermission = function(src, permission)
@@ -96,7 +96,7 @@ local function build(name, priority, resource, getCore)
         end,
 
         canCarry = function(src, item, amount)
-            if FZ.IsStarted("qb-inventory") then
+            if framezero.IsStarted("qb-inventory") then
                 local ok, can = pcall(function() return exports["qb-inventory"]:CanAddItem(src, item, amount) end)
                 if ok then return can == true end
             end
@@ -149,8 +149,8 @@ local function build(name, priority, resource, getCore)
 
         -- Veículos (tabela player_vehicles)
         giveVehicle = function(id, model, plate, opts)
-            local license = FZ.DB.Scalar("SELECT license FROM players WHERE citizenid = ?", { id })
-            FZ.DB.Insert(
+            local license = framezero.DB.Scalar("SELECT license FROM players WHERE citizenid = ?", { id })
+            framezero.DB.Insert(
                 "INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, garage, state) VALUES (?, ?, ?, ?, '{}', ?, ?, 1)",
                 { license, id, model, GetHashKey(model), plate, opts.garage or Config.VehicleDefaults.Garage }
             )
@@ -158,11 +158,11 @@ local function build(name, priority, resource, getCore)
         end,
 
         hasVehicle = function(id, model)
-            return FZ.DB.Scalar("SELECT 1 FROM player_vehicles WHERE citizenid = ? AND vehicle = ? LIMIT 1", { id, model }) ~= nil
+            return framezero.DB.Scalar("SELECT 1 FROM player_vehicles WHERE citizenid = ? AND vehicle = ? LIMIT 1", { id, model }) ~= nil
         end,
 
         plateExists = function(plate)
-            return FZ.DB.Scalar("SELECT 1 FROM player_vehicles WHERE plate = ? LIMIT 1", { plate }) ~= nil
+            return framezero.DB.Scalar("SELECT 1 FROM player_vehicles WHERE plate = ? LIMIT 1", { plate }) ~= nil
         end,
 
         -- Interface
@@ -175,7 +175,7 @@ local function build(name, priority, resource, getCore)
         end,
     }
 
-    FZ.RegisterAdapter("framework", name, adapter)
+    framezero.RegisterAdapter("framework", name, adapter)
     return adapter
 end
 

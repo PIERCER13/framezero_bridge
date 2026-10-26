@@ -1,14 +1,13 @@
--- framezero_bridge / server/api.lua (API pública do servidor)
--- local Bridge = exports.framezero_bridge:GetBridge()
--- Bridge.AddItem(source, "agua", 2)
+-- local framezero = exports.framezero_bridge:GetFramezero()
+-- framezero.AddItem(source, "agua", 2)
 --
 -- Toda função pode ser trocada em custom/server.lua:
--- FZ.Custom.GiveVehicle = function(target, model, opts) ... end
+-- framezero.Custom.GiveVehicle = function(target, model, opts) ... end
 
 local API = {}
-FZ.Internal = { loaded = {}, unloaded = {} }
+framezero.Internal = { loaded = {}, unloaded = {} }
 
-local function framework() return FZ.Active.framework end
+local function framework() return framezero.Active.framework end
 
 local function isOnline(src)
     src = tonumber(src)
@@ -22,57 +21,57 @@ end
 
 
 -- Eventos de jogador
-function FZ.Internal.PlayerLoaded(src)
-    for _, cb in ipairs(FZ.Internal.loaded) do
+function framezero.Internal.PlayerLoaded(src)
+    for _, cb in ipairs(framezero.Internal.loaded) do
         local ok, err = pcall(cb, src, API.GetPlayerId(src))
-        if not ok then FZ.Log("error", "OnPlayerLoaded: %s", err) end
+        if not ok then framezero.Log("error", "OnPlayerLoaded: %s", err) end
     end
 end
 
-function FZ.Internal.PlayerUnloaded(src)
-    for _, cb in ipairs(FZ.Internal.unloaded) do
+function framezero.Internal.PlayerUnloaded(src)
+    for _, cb in ipairs(framezero.Internal.unloaded) do
         local ok, err = pcall(cb, src)
-        if not ok then FZ.Log("error", "OnPlayerUnloaded: %s", err) end
+        if not ok then framezero.Log("error", "OnPlayerUnloaded: %s", err) end
     end
 end
 
-function API.OnPlayerLoaded(cb)   FZ.Internal.loaded[#FZ.Internal.loaded + 1] = cb end
-function API.OnPlayerUnloaded(cb) FZ.Internal.unloaded[#FZ.Internal.unloaded + 1] = cb end
+function API.OnPlayerLoaded(cb)   framezero.Internal.loaded[#framezero.Internal.loaded + 1] = cb end
+function API.OnPlayerUnloaded(cb) framezero.Internal.unloaded[#framezero.Internal.unloaded + 1] = cb end
 
 
 -- Jogador
 -- ID do personagem (identifier · citizenid · user_id/passaporte), sempre string
 function API.GetPlayerId(src)
     if not isOnline(src) then return nil end
-    local id = FZ.Call("framework", "getId", tonumber(src))
+    local id = framezero.Call("framework", "getId", tonumber(src))
     return id and tostring(id) or nil
 end
 
 function API.GetSource(id)
     if id == nil then return nil end
-    return FZ.Call("framework", "getSource", id)
+    return framezero.Call("framework", "getSource", id)
 end
 
 -- Lista de sources online (mesmo formato em todos os frameworks)
 function API.GetPlayers()
-    return FZ.Call("framework", "getPlayers") or {}
+    return framezero.Call("framework", "getPlayers") or {}
 end
 
 function API.GetName(src)
     if not isOnline(src) then return nil end
-    return FZ.Call("framework", "getName", tonumber(src)) or GetPlayerName(src)
+    return framezero.Call("framework", "getName", tonumber(src)) or GetPlayerName(src)
 end
 
 -- Grupo, permissão, job ou ACE (o que o framework entender por permissão)
 function API.HasPermission(src, permission)
     if not isOnline(src) or type(permission) ~= "string" then return false end
-    return FZ.Call("framework", "hasPermission", tonumber(src), permission) == true
+    return framezero.Call("framework", "hasPermission", tonumber(src), permission) == true
 end
 
 -- { name, label, grade, gradeLabel, onDuty } ou nil
 function API.GetJob(src)
     if not isOnline(src) then return nil end
-    return FZ.Call("framework", "getJob", tonumber(src))
+    return framezero.Call("framework", "getJob", tonumber(src))
 end
 
 
@@ -83,23 +82,23 @@ function API.GetMoney(src, account)
     if not isOnline(src) then return 0 end
     account = account or "cash"
     if account == "dirty" and dirtyMoney().item then return API.GetItemCount(src, dirtyMoney().item) end
-    return tonumber(FZ.Call("framework", "getMoney", tonumber(src), account)) or 0
+    return tonumber(framezero.Call("framework", "getMoney", tonumber(src), account)) or 0
 end
 
 function API.AddMoney(src, amount, account)
-    amount = FZ.PositiveInt(amount)
+    amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) then return false end
     account = account or "cash"
     if account == "dirty" and dirtyMoney().item then return API.AddItem(src, dirtyMoney().item, amount) end
-    return FZ.Call("framework", "addMoney", tonumber(src), amount, account) == true
+    return framezero.Call("framework", "addMoney", tonumber(src), amount, account) == true
 end
 
 function API.RemoveMoney(src, amount, account)
-    amount = FZ.PositiveInt(amount)
+    amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) then return false end
     account = account or "cash"
     if account == "dirty" and dirtyMoney().item then return API.RemoveItem(src, dirtyMoney().item, amount) end
-    return FZ.Call("framework", "removeMoney", tonumber(src), amount, account) == true
+    return framezero.Call("framework", "removeMoney", tonumber(src), amount, account) == true
 end
 
 
@@ -107,9 +106,9 @@ end
 -- Usa o inventário detectado (ox, qs) ou o do próprio framework.
 
 local function inv(method, ...)
-    local adapter = FZ.Active.inventory
+    local adapter = framezero.Active.inventory
     if adapter and adapter[method] then return adapter[method](...) end
-    return FZ.Call("framework", method, ...)
+    return framezero.Call("framework", method, ...)
 end
 
 function API.GetItemCount(src, item, metadata)
@@ -118,23 +117,23 @@ function API.GetItemCount(src, item, metadata)
 end
 
 function API.HasItem(src, item, amount, metadata)
-    return API.GetItemCount(src, item, metadata) >= (FZ.PositiveInt(amount) or 1)
+    return API.GetItemCount(src, item, metadata) >= (framezero.PositiveInt(amount) or 1)
 end
 
 function API.CanCarry(src, item, amount, metadata)
-    amount = FZ.PositiveInt(amount)
+    amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) then return false end
     return inv("canCarry", tonumber(src), item, amount, metadata) ~= false
 end
 
 function API.AddItem(src, item, amount, metadata)
-    amount = FZ.PositiveInt(amount)
+    amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) or type(item) ~= "string" then return false end
     return inv("addItem", tonumber(src), item, amount, metadata) == true
 end
 
 function API.RemoveItem(src, item, amount, metadata)
-    amount = FZ.PositiveInt(amount)
+    amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) or type(item) ~= "string" then return false end
     return inv("removeItem", tonumber(src), item, amount, metadata) == true
 end
@@ -158,9 +157,9 @@ end
 
 -- Veículos
 local function vehicles(method, ...)
-    local adapter = FZ.Active.vehicles
+    local adapter = framezero.Active.vehicles
     if adapter and adapter[method] then return adapter[method](...) end
-    return FZ.Call("framework", method, ...)
+    return framezero.Call("framework", method, ...)
 end
 
 local PLATE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789"
@@ -202,23 +201,23 @@ end
 -- kind: success · error · warning · info (aceita sucesso/negado/aviso)
 function API.Notify(src, kind, message, duration)
     if not isOnline(src) then return end
-    kind, duration = FZ.NotifyType(kind), tonumber(duration) or 5000
-    if FZ.Active.notify == "ox_lib" then
+    kind, duration = framezero.NotifyType(kind), tonumber(duration) or 5000
+    if framezero.Active.notify == "ox_lib" then
         TriggerClientEvent("ox_lib:notify", src, { description = message, type = kind == "info" and "inform" or kind, duration = duration })
-    elseif FZ.Active.notify == "okokNotify" then
+    elseif framezero.Active.notify == "okokNotify" then
         TriggerClientEvent("okokNotify:Alert", src, "", message, duration, kind)
-    elseif FZ.Active.notify == "mythic_notify" then
+    elseif framezero.Active.notify == "mythic_notify" then
         TriggerClientEvent("mythic_notify:client:SendAlert", src, { type = kind == "warning" and "inform" or kind, text = message, length = duration })
     else
-        FZ.Call("framework", "notify", tonumber(src), kind, tostring(message), duration)
+        framezero.Call("framework", "notify", tonumber(src), kind, tostring(message), duration)
     end
 end
 
 -- Caixa de texto na tela do jogador. Retorna o texto ou nil (cancelou).
 function API.Prompt(src, title, placeholder)
     if not isOnline(src) then return nil end
-    local text = FZ.Callback.AwaitClient(tonumber(src), "prompt", nil, title, placeholder or "")
-    text = type(text) == "string" and FZ.Trim(text) or ""
+    local text = framezero.Callback.AwaitClient(tonumber(src), "prompt", nil, title, placeholder or "")
+    text = type(text) == "string" and framezero.Trim(text) or ""
     return text ~= "" and text or nil
 end
 
@@ -226,48 +225,48 @@ end
 function API.Request(src, message, timeoutSeconds)
     if not isOnline(src) then return false end
     local ms = (tonumber(timeoutSeconds) or 30) * 1000
-    return FZ.Callback.AwaitClient(tonumber(src), "request", ms + 1000, message, ms) == true
+    return framezero.Callback.AwaitClient(tonumber(src), "request", ms + 1000, message, ms) == true
 end
 
 function API.Revive(src, health)
     if not isOnline(src) then return end
-    FZ.Call("framework", "revive", tonumber(src), health)
+    framezero.Call("framework", "revive", tonumber(src), health)
 end
 
 
 -- Callbacks e banco
-API.RegisterCallback = FZ.Callback.Register
-API.AwaitClient = FZ.Callback.AwaitClient
-API.DB = FZ.DB
+API.RegisterCallback = framezero.Callback.Register
+API.AwaitClient = framezero.Callback.AwaitClient
+API.DB = framezero.DB
 
 function API.Info()
     return {
-        version = FZ.Version,
-        framework = FZ.Active.framework and FZ.Active.framework.name,
-        inventory = FZ.Active.inventory and FZ.Active.inventory.name or "framework",
-        vehicles = FZ.Active.vehicles and FZ.Active.vehicles.name or "framework",
-        notify = FZ.Active.notify,
-        vrpFlavor = FZ.Active.framework and FZ.Active.framework.flavor and FZ.Active.framework.flavor() or nil,
-        vrpFunctions = FZ.Active.framework and FZ.Active.framework.functions and FZ.Active.framework.functions() or nil,
+        version = framezero.Version,
+        framework = framezero.Active.framework and framezero.Active.framework.name,
+        inventory = framezero.Active.inventory and framezero.Active.inventory.name or "framework",
+        vehicles = framezero.Active.vehicles and framezero.Active.vehicles.name or "framework",
+        notify = framezero.Active.notify,
+        vrpFlavor = framezero.Active.framework and framezero.Active.framework.flavor and framezero.Active.framework.flavor() or nil,
+        vrpFunctions = framezero.Active.framework and framezero.Active.framework.functions and framezero.Active.framework.functions() or nil,
     }
 end
 
 
 -- O cliente pergunta qual framework/variante está ativo (notificação, estilo vRP)
-FZ.Callback.Register("info", function()
-    while not FZ.Ready do Wait(100) end
+framezero.Callback.Register("info", function()
+    while not framezero.Ready do Wait(100) end
     return API.Info()
 end)
 
 
 -- Publicação
--- Cada função pública consulta FZ.Custom primeiro.
+-- Cada função pública consulta framezero.Custom primeiro.
 
 local Public = {}
 for name, fn in pairs(API) do
     if type(fn) == "function" then
         Public[name] = function(...)
-            local custom = FZ.Custom[name]
+            local custom = framezero.Custom[name]
             if custom then return custom(...) end
             return fn(...)
         end
@@ -275,10 +274,10 @@ for name, fn in pairs(API) do
         Public[name] = fn
     end
 end
-FZ.API = Public
+framezero.API = Public
 
-exports("GetBridge", function() return Public end)
-exports("IsReady", function() return FZ.Ready end)
+exports("GetFramezero", function() return Public end)
+exports("IsReady", function() return framezero.Ready end)
 
 
 -- Inicialização
@@ -286,12 +285,12 @@ local FRAMEWORK_RESOURCES = { "qbx_core", "qb-core", "es_extended", "tnet_core",
 
 local function selectAdapter(kind, forced, fallback)
     if forced == "framework" then return nil end
-    local adapter = FZ.SelectAdapter(kind, forced)
+    local adapter = framezero.SelectAdapter(kind, forced)
     if adapter and adapter.init and not adapter.init() then
-        FZ.Log("error", FZ.L("adapter_failed"), kind, adapter.name)
+        framezero.Log("error", framezero.L("adapter_failed"), kind, adapter.name)
         return nil
     end
-    if not adapter and fallback then FZ.Log("debug", FZ.L("adapter_none"), kind, fallback) end
+    if not adapter and fallback then framezero.Log("debug", framezero.L("adapter_none"), kind, fallback) end
     return adapter
 end
 
@@ -300,8 +299,8 @@ local function checkUpdate()
     PerformHttpRequest(Config.UpdateUrl, function(status, body)
         if status ~= 200 or not body then return end
         local ok, data = pcall(json.decode, body)
-        if ok and data and data.version and data.version ~= FZ.Version then
-            FZ.Log("warn", FZ.L("update_available"), data.version, FZ.Version)
+        if ok and data and data.version and data.version ~= framezero.Version then
+            framezero.Log("warn", framezero.L("update_available"), data.version, framezero.Version)
         end
     end, "GET")
 end
@@ -317,35 +316,35 @@ CreateThread(function()
         Wait(200)
     end
 
-    FZ.Active.framework = selectAdapter("framework", Config.Framework)
-    if not FZ.Active.framework then
-        FZ.Active.framework = FZ.Adapters.framework.standalone
-        FZ.Active.framework.init()
+    framezero.Active.framework = selectAdapter("framework", Config.Framework)
+    if not framezero.Active.framework then
+        framezero.Active.framework = framezero.Adapters.framework.standalone
+        framezero.Active.framework.init()
     end
-    FZ.Active.inventory = selectAdapter("inventory", Config.Inventory, "framework")
-    FZ.Active.vehicles = selectAdapter("vehicles", Config.Vehicles, "framework")
+    framezero.Active.inventory = selectAdapter("inventory", Config.Inventory, "framework")
+    framezero.Active.vehicles = selectAdapter("vehicles", Config.Vehicles, "framework")
     if Config.Notify ~= "auto" then
-        FZ.Active.notify = Config.Notify
-    elseif FZ.Active.framework.name ~= "vrp" and FZ.IsStarted("ox_lib") then
-        FZ.Active.notify = "ox_lib"
-    elseif FZ.IsStarted("okokNotify") then
-        FZ.Active.notify = "okokNotify"
-    elseif FZ.IsStarted("mythic_notify") then
-        FZ.Active.notify = "mythic_notify"
+        framezero.Active.notify = Config.Notify
+    elseif framezero.Active.framework.name ~= "vrp" and framezero.IsStarted("ox_lib") then
+        framezero.Active.notify = "ox_lib"
+    elseif framezero.IsStarted("okokNotify") then
+        framezero.Active.notify = "okokNotify"
+    elseif framezero.IsStarted("mythic_notify") then
+        framezero.Active.notify = "mythic_notify"
     else
-        FZ.Active.notify = "framework"
+        framezero.Active.notify = "framework"
     end
 
     for _, res in ipairs(FRAMEWORK_RESOURCES) do
         if GetResourceState(res) == "stopped" then
-            FZ.Log("warn", FZ.L("start_order"), res)
+            framezero.Log("warn", framezero.L("start_order"), res)
         end
     end
 
-    FZ.Ready = true
+    framezero.Ready = true
     local info = API.Info()
-    FZ.Banner({
-        FZ.L("started", info.version, info.framework .. (info.vrpFlavor and (" · " .. info.vrpFlavor) or ""), info.inventory, info.vehicles, info.notify),
+    framezero.Banner({
+        framezero.L("started", info.version, info.framework .. (info.vrpFlavor and (" · " .. info.vrpFlavor) or ""), info.inventory, info.vehicles, info.notify),
     })
     checkUpdate()
 end)

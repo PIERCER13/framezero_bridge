@@ -1,11 +1,11 @@
--- Servidor → cliente:  FZ.Callback.AwaitClient(src, nome, timeoutMs, ...)
--- Cliente → servidor:  FZ.Callback.Register(nome, function(src, ...) end)
+-- Servidor → cliente:  framezero.Callback.AwaitClient(src, nome, timeoutMs, ...)
+-- Cliente → servidor:  framezero.Callback.Register(nome, function(src, ...) end)
 --
 -- Tudo que chega do cliente é entrada do jogador: valide no handler.
 
-FZ.Callback = {}
+framezero.Callback = {}
 
-local EVT = FZ.Resource .. ":cb:"
+local EVT = framezero.Resource .. ":cb:"
 local handlers = {}
 local pending = {}
 local counter = 0
@@ -20,13 +20,13 @@ local function limited(src)
         return false
     end
     entry.count = entry.count + 1
-    if entry.count == Config.CallbackRateLimit + 1 then FZ.Log("warn", FZ.L("rate_limited"), src) end
+    if entry.count == Config.CallbackRateLimit + 1 then framezero.Log("warn", framezero.L("rate_limited"), src) end
     return entry.count > Config.CallbackRateLimit
 end
 
 
 -- Cliente → servidor
-function FZ.Callback.Register(name, handler)
+function framezero.Callback.Register(name, handler)
     handlers[name] = handler
 end
 
@@ -42,7 +42,7 @@ RegisterNetEvent(EVT .. "request", function(requestId, name, ...)
 
     local ok, a, b, c, d, e = pcall(handler, src, ...)
     if not ok then
-        FZ.Log("error", "callback '%s': %s", name, tostring(a))
+        framezero.Log("error", "callback '%s': %s", name, tostring(a))
         a, b, c, d, e = nil, nil, nil, nil, nil
     end
     TriggerClientEvent(EVT .. "response", src, requestId, a, b, c, d, e)
@@ -50,7 +50,7 @@ end)
 
 
 -- Servidor → cliente
-function FZ.Callback.AwaitClient(src, name, timeoutMs, ...)
+function framezero.Callback.AwaitClient(src, name, timeoutMs, ...)
     counter = counter + 1
     local requestId = ("%d:%d"):format(src, counter)
     local p = promise.new()

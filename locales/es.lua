@@ -1,5 +1,3 @@
--- framezero_bridge / locales/es.lua
-
 Locales = Locales or {}
 
 Locales["es"] = {

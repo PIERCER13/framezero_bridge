@@ -38,7 +38,7 @@ local function call(op, ...)
     if not name then
         if not warned[op] then
             warned[op] = true
-            FZ.Log("warn", FZ.L("vrp_function_missing"), table.concat(NAMES[op] or { op }, " / "))
+            framezero.Log("warn", framezero.L("vrp_function_missing"), table.concat(NAMES[op] or { op }, " / "))
         end
         return nil
     end
@@ -57,31 +57,31 @@ end
 
 local cashIsItem = function() return fn.getMoney == nil end
 
-FZ.RegisterAdapter("framework", "vrp", {
+framezero.RegisterAdapter("framework", "vrp", {
     priority = 10,
 
     detect = function()
-        return FZ.IsStarted(Config.Vrp.Resource)
+        return framezero.IsStarted(Config.Vrp.Resource)
     end,
 
     init = function()
-        if not FZ.Vrp.Load() then return false end
-        vRP, vRPclient = FZ.Vrp.server, FZ.Vrp.client
-        for op, names in pairs(NAMES) do fn[op] = FZ.Vrp.Pick(table.unpack(names)) end
-        flavor = FZ.Vrp.Flavor()
-        FZ.Log("info", FZ.L("vrp_flavor"), flavor, FZ.Vrp.Count())
+        if not framezero.Vrp.Load() then return false end
+        vRP, vRPclient = framezero.Vrp.server, framezero.Vrp.client
+        for op, names in pairs(NAMES) do fn[op] = framezero.Vrp.Pick(table.unpack(names)) end
+        flavor = framezero.Vrp.Flavor()
+        framezero.Log("info", framezero.L("vrp_flavor"), flavor, framezero.Vrp.Count())
 
         -- vRP · vRPex
-        AddEventHandler("vRP:playerSpawn", function(_, src, first) if first then FZ.Internal.PlayerLoaded(src) end end)
-        AddEventHandler("vRP:playerLeave", function(_, src) FZ.Internal.PlayerUnloaded(src) end)
+        AddEventHandler("vRP:playerSpawn", function(_, src, first) if first then framezero.Internal.PlayerLoaded(src) end end)
+        AddEventHandler("vRP:playerLeave", function(_, src) framezero.Internal.PlayerUnloaded(src) end)
         -- Creative
-        AddEventHandler("Connect", function(_, src) FZ.Internal.PlayerLoaded(src) end)
-        AddEventHandler("Disconnect", function(_, src) FZ.Internal.PlayerUnloaded(src) end)
+        AddEventHandler("Connect", function(_, src) framezero.Internal.PlayerLoaded(src) end)
+        AddEventHandler("Disconnect", function(_, src) framezero.Internal.PlayerUnloaded(src) end)
         return fn.id ~= nil
     end,
 
     flavor = function() return flavor end,
-    -- Qual função da base atende cada operação (aparece no Bridge.Info(), ajuda no suporte)
+    -- Qual função da base atende cada operação (aparece no framezero.Info(), ajuda no suporte)
     functions = function() return fn end,
 
     -- Jogador
@@ -107,7 +107,7 @@ FZ.RegisterAdapter("framework", "vrp", {
         if type(identity) ~= "table" then return GetPlayerName(src) end
         local first = identity.name or identity.Name or ""
         local last = identity.firstname or identity.name2 or identity.Lastname or identity.lastname or ""
-        return FZ.Trim(first .. " " .. last)
+        return framezero.Trim(first .. " " .. last)
     end,
 
     hasPermission = function(src, permission)
@@ -208,8 +208,8 @@ FZ.RegisterAdapter("framework", "vrp", {
 
     giveVehicle = function(id, model, plate)
         for _, tableName in ipairs({ "vrp_user_vehicles", "vehicles" }) do
-            if FZ.DB.TableExists(tableName) then
-                local cols = FZ.DB.Columns(tableName)
+            if framezero.DB.TableExists(tableName) then
+                local cols = framezero.DB.Columns(tableName)
                 local idCol = (cols.user_id and "user_id") or (cols.Passport and "Passport") or (cols.passport and "passport")
                 local modelCol = (cols.vehicle and "vehicle") or (cols.model and "model")
                 local plateCol = (cols.plate and "plate") or (cols.vehicle_plate and "vehicle_plate")
@@ -217,7 +217,7 @@ FZ.RegisterAdapter("framework", "vrp", {
                     local columns, values = { idCol, modelCol }, { tonumber(id) or id, model }
                     if plateCol then columns[3], values[3] = plateCol, plate end
                     local marks = ("?, "):rep(#columns):sub(1, -3)
-                    FZ.DB.Insert(("INSERT INTO `%s` (%s) VALUES (%s)"):format(tableName, table.concat(columns, ", "), marks), values)
+                    framezero.DB.Insert(("INSERT INTO `%s` (%s) VALUES (%s)"):format(tableName, table.concat(columns, ", "), marks), values)
                     return true
                 end
             end
@@ -227,13 +227,13 @@ FZ.RegisterAdapter("framework", "vrp", {
 
     hasVehicle = function(id, model)
         for _, tableName in ipairs({ "vrp_user_vehicles", "vehicles" }) do
-            if FZ.DB.TableExists(tableName) then
-                local cols = FZ.DB.Columns(tableName)
+            if framezero.DB.TableExists(tableName) then
+                local cols = framezero.DB.Columns(tableName)
                 local idCol = (cols.user_id and "user_id") or (cols.Passport and "Passport") or (cols.passport and "passport")
                 local modelCol = (cols.vehicle and "vehicle") or (cols.model and "model")
                 if idCol and modelCol then
                     local sql = ("SELECT 1 FROM `%s` WHERE %s = ? AND %s = ? LIMIT 1"):format(tableName, idCol, modelCol)
-                    return FZ.DB.Scalar(sql, { tonumber(id) or id, model }) ~= nil
+                    return framezero.DB.Scalar(sql, { tonumber(id) or id, model }) ~= nil
                 end
             end
         end

@@ -1,5 +1,3 @@
--- framezero_bridge / server/inventory/qs-inventory.lua (Quasar Inventory)
-
 local qs = function() return exports["qs-inventory"] end
 local items
 
@@ -8,10 +6,10 @@ local function itemData(name)
     return items[name]
 end
 
-FZ.RegisterAdapter("inventory", "qs-inventory", {
+framezero.RegisterAdapter("inventory", "qs-inventory", {
     priority = 20,
 
-    detect = function() return FZ.IsStarted("qs-inventory") end,
+    detect = function() return framezero.IsStarted("qs-inventory") end,
     init = function() return true end,
 
     getItemCount = function(src, item)

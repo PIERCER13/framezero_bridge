@@ -1,4 +1,3 @@
--- framezero_bridge / server/frameworks/oxcore.lua (ox_core, Overextended)
 -- Feito pela API pública do ox_core. Ainda não testado; o ox_core muda bastante
 -- entre versões, então confira com o seu e ajuste em custom/server.lua se precisar.
 
@@ -7,14 +6,14 @@ local function player(src)
     return ok and p or nil
 end
 
-FZ.RegisterAdapter("framework", "oxcore", {
+framezero.RegisterAdapter("framework", "oxcore", {
     priority = 33,
 
-    detect = function() return FZ.IsStarted("ox_core") end,
+    detect = function() return framezero.IsStarted("ox_core") end,
 
     init = function()
-        AddEventHandler("ox:playerLoaded", function(src) FZ.Internal.PlayerLoaded(src) end)
-        AddEventHandler("ox:playerLogout", function(src) FZ.Internal.PlayerUnloaded(src) end)
+        AddEventHandler("ox:playerLoaded", function(src) framezero.Internal.PlayerLoaded(src) end)
+        AddEventHandler("ox:playerLogout", function(src) framezero.Internal.PlayerUnloaded(src) end)
         return true
     end,
 
@@ -38,7 +37,7 @@ FZ.RegisterAdapter("framework", "oxcore", {
     getName = function(src)
         local p = player(src)
         if not p then return nil end
-        return FZ.Trim((p.get("firstName") or "") .. " " .. (p.get("lastName") or ""))
+        return framezero.Trim((p.get("firstName") or "") .. " " .. (p.get("lastName") or ""))
     end,
 
     hasPermission = function(src, permission)

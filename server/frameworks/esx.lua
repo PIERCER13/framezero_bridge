@@ -1,5 +1,3 @@
--- framezero_bridge / server/frameworks/esx.lua (ESX Legacy)
-
 local ESX
 local ACCOUNTS = { cash = "money", bank = "bank", dirty = "black_money" }
 
@@ -11,11 +9,11 @@ local function account(name)
     return ACCOUNTS[name] or name
 end
 
-FZ.RegisterAdapter("framework", "esx", {
+framezero.RegisterAdapter("framework", "esx", {
     priority = 30,
 
     detect = function()
-        return FZ.IsStarted("es_extended")
+        return framezero.IsStarted("es_extended")
     end,
 
     init = function()
@@ -23,8 +21,8 @@ FZ.RegisterAdapter("framework", "esx", {
         ESX = ok and shared or nil
         if not ESX then TriggerEvent("esx:getSharedObject", function(obj) ESX = obj end) end
 
-        AddEventHandler("esx:playerLoaded", function(src) FZ.Internal.PlayerLoaded(src) end)
-        AddEventHandler("esx:playerDropped", function(src) FZ.Internal.PlayerUnloaded(src) end)
+        AddEventHandler("esx:playerLoaded", function(src) framezero.Internal.PlayerLoaded(src) end)
+        AddEventHandler("esx:playerDropped", function(src) framezero.Internal.PlayerUnloaded(src) end)
         return ESX ~= nil
     end,
 
@@ -164,7 +162,7 @@ FZ.RegisterAdapter("framework", "esx", {
 
     -- Veículos (tabela owned_vehicles)
     giveVehicle = function(id, model, plate, opts)
-        FZ.DB.Insert("INSERT INTO owned_vehicles (owner, plate, vehicle, type, stored) VALUES (?, ?, ?, ?, 1)", {
+        framezero.DB.Insert("INSERT INTO owned_vehicles (owner, plate, vehicle, type, stored) VALUES (?, ?, ?, ?, 1)", {
             id, plate, json.encode({ model = GetHashKey(model), plate = plate }), opts.type or Config.VehicleDefaults.Type,
         })
         return true
@@ -172,7 +170,7 @@ FZ.RegisterAdapter("framework", "esx", {
 
     hasVehicle = function(id, model)
         local hash = GetHashKey(model)
-        for _, row in ipairs(FZ.DB.Query("SELECT vehicle FROM owned_vehicles WHERE owner = ?", { id }) or {}) do
+        for _, row in ipairs(framezero.DB.Query("SELECT vehicle FROM owned_vehicles WHERE owner = ?", { id }) or {}) do
             local data = json.decode(row.vehicle or "{}") or {}
             if data.model == hash then return true end
         end
@@ -180,7 +178,7 @@ FZ.RegisterAdapter("framework", "esx", {
     end,
 
     plateExists = function(plate)
-        return FZ.DB.Scalar("SELECT 1 FROM owned_vehicles WHERE plate = ? LIMIT 1", { plate }) ~= nil
+        return framezero.DB.Scalar("SELECT 1 FROM owned_vehicles WHERE plate = ? LIMIT 1", { plate }) ~= nil
     end,
 
     -- Interface

@@ -2,13 +2,13 @@
 -- então não depende de @oxmysql/lib no fxmanifest.
 -- Parâmetros: use "?" (posicional) ou "@nome" (nomeado).
 
-FZ.DB = { prepared = {} }
+framezero.DB = { prepared = {} }
 
 local driver
 
 local function detectDriver()
     for _, name in ipairs({ "oxmysql", "mysql-async", "ghmattimysql" }) do
-        if FZ.IsStarted(name) then return name end
+        if framezero.IsStarted(name) then return name end
     end
 end
 
@@ -21,7 +21,7 @@ end
 -- kind: query · single · scalar · insert · update
 local function execute(kind, sql, params)
     driver = driver or detectDriver()
-    sql = FZ.DB.prepared[sql] or sql
+    sql = framezero.DB.prepared[sql] or sql
     params = params or {}
 
     if driver == "oxmysql" then
@@ -47,22 +47,22 @@ local function execute(kind, sql, params)
         return result
     end
 
-    FZ.Log("error", FZ.L("db_missing"))
+    framezero.Log("error", framezero.L("db_missing"))
     return nil
 end
 
-function FZ.DB.Prepare(name, sql) FZ.DB.prepared[name] = sql return true end
-function FZ.DB.Query(sql, params)  return execute("query", sql, params) end
-function FZ.DB.Single(sql, params) return execute("single", sql, params) end
-function FZ.DB.Scalar(sql, params) return execute("scalar", sql, params) end
-function FZ.DB.Insert(sql, params) return execute("insert", sql, params) end
-function FZ.DB.Update(sql, params) return execute("update", sql, params) end
+function framezero.DB.Prepare(name, sql) framezero.DB.prepared[name] = sql return true end
+function framezero.DB.Query(sql, params)  return execute("query", sql, params) end
+function framezero.DB.Single(sql, params) return execute("single", sql, params) end
+function framezero.DB.Scalar(sql, params) return execute("scalar", sql, params) end
+function framezero.DB.Insert(sql, params) return execute("insert", sql, params) end
+function framezero.DB.Update(sql, params) return execute("update", sql, params) end
 
 -- Colunas de uma tabela (cache), usado para gravar em tabelas que variam entre bases.
 local columnsCache = {}
-function FZ.DB.Columns(tableName)
+function framezero.DB.Columns(tableName)
     if columnsCache[tableName] == nil then
-        local rows = FZ.DB.Query(("SHOW COLUMNS FROM `%s`"):format(tableName:gsub("[^%w_]", ""))) or {}
+        local rows = framezero.DB.Query(("SHOW COLUMNS FROM `%s`"):format(tableName:gsub("[^%w_]", ""))) or {}
         local set = {}
         for _, row in ipairs(rows) do set[row.Field] = true end
         columnsCache[tableName] = set
@@ -70,7 +70,7 @@ function FZ.DB.Columns(tableName)
     return columnsCache[tableName]
 end
 
-function FZ.DB.TableExists(tableName)
-    local row = FZ.DB.Single("SHOW TABLES LIKE ?", { tableName })
+function framezero.DB.TableExists(tableName)
+    local row = framezero.DB.Single("SHOW TABLES LIKE ?", { tableName })
     return row ~= nil
 end

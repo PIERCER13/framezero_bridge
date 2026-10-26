@@ -1,18 +1,17 @@
--- framezero_bridge / server/frameworks/ndcore.lua (ND_Core)
 -- Feito pela API pública do ND_Core. Ainda não testado num servidor ND.
 
 local function player(src)
     return exports["ND_Core"]:getPlayer(src)
 end
 
-FZ.RegisterAdapter("framework", "ndcore", {
+framezero.RegisterAdapter("framework", "ndcore", {
     priority = 32,
 
-    detect = function() return FZ.IsStarted("ND_Core") end,
+    detect = function() return framezero.IsStarted("ND_Core") end,
 
     init = function()
-        AddEventHandler("ND:characterLoaded", function(character) if character then FZ.Internal.PlayerLoaded(character.source) end end)
-        AddEventHandler("ND:characterUnloaded", function(src) FZ.Internal.PlayerUnloaded(src) end)
+        AddEventHandler("ND:characterLoaded", function(character) if character then framezero.Internal.PlayerLoaded(character.source) end end)
+        AddEventHandler("ND:characterUnloaded", function(src) framezero.Internal.PlayerUnloaded(src) end)
         return true
     end,
 
@@ -35,7 +34,7 @@ FZ.RegisterAdapter("framework", "ndcore", {
 
     getName = function(src)
         local p = player(src)
-        return p and FZ.Trim((p.firstname or "") .. " " .. (p.lastname or "")) or nil
+        return p and framezero.Trim((p.firstname or "") .. " " .. (p.lastname or "")) or nil
     end,
 
     hasPermission = function(src, permission)

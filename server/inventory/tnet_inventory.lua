@@ -1,5 +1,3 @@
--- framezero_bridge / server/inventory/tnet_inventory.lua
-
 local inv = function() return exports.tnet_inventory end
 local items
 
@@ -8,10 +6,10 @@ local function itemData(name)
     return items[name]
 end
 
-FZ.RegisterAdapter("inventory", "tnet_inventory", {
+framezero.RegisterAdapter("inventory", "tnet_inventory", {
     priority = 25,
 
-    detect = function() return FZ.IsStarted("tnet_inventory") end,
+    detect = function() return framezero.IsStarted("tnet_inventory") end,
     init = function() return true end,
 
     getItemCount = function(src, item)

@@ -13,18 +13,18 @@ local function charCall(src, method, ...)
     if c and type(c[method]) == "function" then return c[method](...) end
 end
 
-FZ.RegisterAdapter("framework", "tnet", {
+framezero.RegisterAdapter("framework", "tnet", {
     priority = 35,
 
     detect = function()
-        return FZ.IsStarted("tnet_core")
+        return framezero.IsStarted("tnet_core")
     end,
 
     init = function()
         local ok, shared = pcall(function() return exports.tnet_core:getSharedObject() end)
         tNet = ok and shared or nil
-        AddEventHandler("playerJoining", function() FZ.Internal.PlayerLoaded(source) end)
-        AddEventHandler("playerDropped", function() FZ.Internal.PlayerUnloaded(source) end)
+        AddEventHandler("playerJoining", function() framezero.Internal.PlayerLoaded(source) end)
+        AddEventHandler("playerDropped", function() framezero.Internal.PlayerUnloaded(source) end)
         return tNet ~= nil
     end,
 
@@ -50,7 +50,7 @@ FZ.RegisterAdapter("framework", "tnet", {
     getName = function(src)
         local c = character(src)
         if not c then return nil end
-        return FZ.Trim((c.name or "") .. " " .. (c.lastName or ""))
+        return framezero.Trim((c.name or "") .. " " .. (c.lastName or ""))
     end,
 
     hasPermission = function(src, permission)

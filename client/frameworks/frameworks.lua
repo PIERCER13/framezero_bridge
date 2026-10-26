@@ -1,14 +1,13 @@
--- framezero_bridge / client/frameworks/frameworks.lua (notificação e login)
 -- O servidor decide o framework (e a variante do vRP) e o cliente
 -- pergunta uma vez pelo callback "info".
 
-FZ.Client = { info = nil, loaded = {}, isLoaded = false }
+framezero.Client = { info = nil, loaded = {}, isLoaded = false }
 
-function FZ.Client.Info()
-    if not FZ.Client.info then
-        FZ.Client.info = FZ.Callback.Await("info", 10000) or { framework = "standalone", notify = "framework" }
+function framezero.Client.Info()
+    if not framezero.Client.info then
+        framezero.Client.info = framezero.Callback.Await("info", 10000) or { framework = "standalone", notify = "framework" }
     end
-    return FZ.Client.info
+    return framezero.Client.info
 end
 
 
@@ -18,9 +17,9 @@ local VRP_STYLES = {
     creative  = { success = "verde", error = "vermelho", warning = "amarelo", info = "azul" },
 }
 
-function FZ.Client.Notify(kind, message, duration)
-    kind, duration = FZ.NotifyType(kind), tonumber(duration) or 5000
-    local info = FZ.Client.Info()
+function framezero.Client.Notify(kind, message, duration)
+    kind, duration = framezero.NotifyType(kind), tonumber(duration) or 5000
+    local info = framezero.Client.Info()
 
     if info.notify == "ox_lib" then
         exports.ox_lib:notify({ description = message, type = kind == "info" and "inform" or kind, duration = duration })
@@ -43,18 +42,18 @@ function FZ.Client.Notify(kind, message, duration)
             TriggerEvent("Notify", VRP_STYLES[style][kind], message, duration)
         end
     else
-        FZ.UI.Notify(kind, message, duration)
+        framezero.UI.Notify(kind, message, duration)
     end
 end
 
 
 -- Jogador carregado
 local function playerLoaded()
-    if FZ.Client.isLoaded then return end
-    FZ.Client.isLoaded = true
-    for _, cb in ipairs(FZ.Client.loaded) do
+    if framezero.Client.isLoaded then return end
+    framezero.Client.isLoaded = true
+    for _, cb in ipairs(framezero.Client.loaded) do
         local ok, err = pcall(cb)
-        if not ok then FZ.Log("error", "OnPlayerLoaded: %s", err) end
+        if not ok then framezero.Log("error", "OnPlayerLoaded: %s", err) end
     end
 end
 
