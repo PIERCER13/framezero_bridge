@@ -1,4 +1,3 @@
--- framezero_bridge / server/frameworks/vrp.lua (vRP · vRPex · Creative)
 -- Um adaptador só para toda a família vRP. Cada operação tem uma
 -- lista de nomes possíveis; vale o primeiro que existe nesta base
 -- (ver server/core/vrp.lua).

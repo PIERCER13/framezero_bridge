@@ -1,6 +1,6 @@
 # FrameZero Bridge
 
-Resource multi-framework dos scripts da **FrameZero**, feita pelo piercer. Instala uma vez e todos os scripts da loja rodam no seu framework.
+Resource multi-framework dos scripts da **FrameZero**. Instala uma vez e todos os scripts da loja rodam no seu framework.
 
 **Frameworks:** ESX (Legacy e 1.x) · QBCore (novo e antigo) · Qbox · vRP · vRPex · Creative (v5, v6, Network, Enchanted e bases modificadas) · tnet · ND_Core · ox_core
 **Inventários:** ox_inventory · qs-inventory · tnet_inventory · codem-inventory · core_inventory · ak47_inventory · padrão do framework

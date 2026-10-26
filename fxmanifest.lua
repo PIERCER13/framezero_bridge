@@ -1,6 +1,3 @@
--- framezero_bridge
--- feito por piercer para os scripts da FrameZero
-
 fx_version "cerulean"
 game "gta5"
 lua54 "yes"
@@ -8,7 +5,7 @@ lua54 "yes"
 name "framezero_bridge"
 author "piercer"
 version "1.1.0"
-description "FrameZero Bridge · multi-framework (ESX, QBCore, Qbox, vRP, vRPex, Creative)"
+description "FrameZero Bridge (ESX, QBCore, Qbox, vRP, vRPex, Creative)"
 
 ui_page "web/index.html"
 

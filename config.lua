@@ -1,7 +1,5 @@
--- framezero_bridge / config.lua
 -- Na maioria dos servidores nada aqui precisa ser alterado:
 -- a bridge detecta framework, inventário e garagem sozinha.
-
 Config = {}
 
 Config.Locale = "pt-br"         -- pt-br · en · es

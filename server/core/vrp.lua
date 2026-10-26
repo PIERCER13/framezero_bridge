@@ -1,4 +1,3 @@
--- framezero_bridge / server/core/vrp.lua (leitor de bases vRP)
 -- A interface Proxy do vRP responde a QUALQUER nome de função, então
 -- "if vRP.Passport then" nunca falha. Por isso a bridge lê os arquivos
 -- do resource vrp e anota quais funções realmente existem.

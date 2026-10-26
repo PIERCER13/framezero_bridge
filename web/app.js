@@ -1,5 +1,3 @@
-/* framezero_bridge - recebe as mensagens do client/core/ui.lua */
-
 const RESOURCE = typeof GetParentResourceName === 'function' ? GetParentResourceName() : 'framezero_bridge';
 const $ = (id) => document.getElementById(id);
 

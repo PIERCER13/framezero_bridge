@@ -1,7 +1,4 @@
--- framezero_bridge / import.lua (atalho para os scripts FrameZero)
--- No fxmanifest do script:
--- shared_script "@framezero_bridge/import.lua"
---
+
 -- Depois é só usar a global Bridge, no servidor ou no cliente:
 -- Bridge.Notify(source, "success", "Pronto!")
 

@@ -1,4 +1,3 @@
--- framezero_bridge / server/core/db.lua (banco de dados)
 -- Usa os exports do driver (oxmysql · mysql-async · ghmattimysql),
 -- então não depende de @oxmysql/lib no fxmanifest.
 -- Parâmetros: use "?" (posicional) ou "@nome" (nomeado).

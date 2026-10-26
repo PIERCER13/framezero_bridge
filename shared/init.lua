@@ -1,4 +1,3 @@
--- framezero_bridge / shared/init.lua (núcleo compartilhado)
 -- FZ é a tabela interna da bridge. Os scripts NÃO usam FZ direto:
 -- eles recebem a API pública via exports.framezero_bridge:GetBridge().
 

@@ -1,4 +1,3 @@
--- framezero_bridge / server/core/callbacks.lua (callbacks cliente ⇄ servidor)
 -- Servidor → cliente:  FZ.Callback.AwaitClient(src, nome, timeoutMs, ...)
 -- Cliente → servidor:  FZ.Callback.Register(nome, function(src, ...) end)
 --
