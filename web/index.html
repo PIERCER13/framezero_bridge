@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- framezero_bridge - prompt, solicitação, progresso, texto e notificação -->
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>FrameZero Bridge</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Prompt -->
+  <div id="prompt" class="fz-card fz-modal hidden">
+    <div class="fz-brand"><span class="fz-mark"></span>FRAMEZERO</div>
+    <h2 id="prompt-title"></h2>
+    <input id="prompt-input" type="text" maxlength="255" autocomplete="off">
+    <div class="fz-actions">
+      <button id="prompt-cancel" class="fz-btn ghost"></button>
+      <button id="prompt-confirm" class="fz-btn gold"></button>
+    </div>
+  </div>
+
+  <!-- Solicitação Sim/Não -->
+  <div id="request" class="fz-card fz-request hidden">
+    <div class="fz-brand"><span class="fz-mark"></span><span id="request-title"></span></div>
+    <p id="request-message"></p>
+    <div class="fz-keys">
+      <span><kbd id="key-accept"></kbd> <b id="label-accept"></b></span>
+      <span><kbd id="key-decline"></kbd> <b id="label-decline"></b></span>
+    </div>
+    <div class="fz-timer"><i id="request-bar"></i></div>
+  </div>
+
+  <!-- Progresso -->
+  <div id="progress" class="fz-progress hidden">
+    <div class="fz-progress-label"><span class="fz-mark"></span><span id="progress-label"></span><span id="progress-pct">0%</span></div>
+    <div class="fz-progress-track"><i id="progress-bar"></i></div>
+  </div>
+
+  <!-- Texto de ajuda -->
+  <div id="text" class="fz-text hidden"></div>
+
+  <!-- Notificações -->
+  <div id="notify" class="fz-notify"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

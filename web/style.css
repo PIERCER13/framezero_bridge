@@ -1,0 +1,65 @@
+/* framezero_bridge - visual da FrameZero (grafite + dourado) */
+
+:root {
+  --fz-bg: rgba(14, 15, 18, 0.94);
+  --fz-line: rgba(255, 255, 255, 0.08);
+  --fz-text: #e9e7e1;
+  --fz-muted: #8c8a84;
+  --fz-gold: #e3b341;
+  --fz-gold-dim: rgba(227, 179, 65, 0.18);
+  --fz-success: #3ecf8e;
+  --fz-error: #ef5350;
+  --fz-warning: #f0a33a;
+  --fz-info: #5aa9e6;
+  --fz-font: "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--fz-font); color: var(--fz-text); background: transparent; overflow: hidden; user-select: none; }
+.hidden { display: none !important; }
+
+.fz-mark { display: inline-block; width: 10px; height: 10px; background: var(--fz-gold); margin-right: 8px; box-shadow: 3px 3px 0 var(--fz-gold-dim); }
+.fz-brand { display: flex; align-items: center; font-size: 11px; letter-spacing: 3px; font-weight: 700; color: var(--fz-gold); text-transform: uppercase; }
+
+.fz-card { background: var(--fz-bg); border: 1px solid var(--fz-line); border-left: 3px solid var(--fz-gold); padding: 18px 20px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); }
+
+/* Prompt */
+.fz-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px; animation: fz-in 0.18s ease-out; }
+.fz-modal h2 { font-size: 17px; font-weight: 600; margin: 10px 0 14px; }
+.fz-modal input { width: 100%; padding: 11px 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--fz-line); color: var(--fz-text); font-size: 14px; outline: none; }
+.fz-modal input:focus { border-color: var(--fz-gold); }
+.fz-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.fz-btn { padding: 9px 16px; border: 0; font-weight: 700; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+.fz-btn.gold { background: var(--fz-gold); color: #17140c; }
+.fz-btn.ghost { background: transparent; color: var(--fz-muted); border: 1px solid var(--fz-line); }
+
+/* Solicitação */
+.fz-request { position: absolute; top: 28%; right: 24px; width: 320px; animation: fz-slide 0.2s ease-out; }
+.fz-request p { margin: 10px 0 12px; font-size: 14px; line-height: 1.4; }
+.fz-keys { display: flex; gap: 16px; font-size: 12px; color: var(--fz-muted); }
+kbd { display: inline-block; min-width: 22px; padding: 2px 6px; background: var(--fz-gold); color: #17140c; font-weight: 800; text-align: center; font-family: inherit; }
+.fz-keys span:last-child kbd { background: rgba(255, 255, 255, 0.12); color: var(--fz-text); }
+.fz-timer { height: 2px; background: var(--fz-line); margin-top: 14px; }
+.fz-timer i { display: block; height: 100%; width: 100%; background: var(--fz-gold); }
+
+/* Progresso */
+.fz-progress { position: absolute; bottom: 9%; left: 50%; transform: translateX(-50%); width: 340px; }
+.fz-progress-label { display: flex; align-items: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px; text-shadow: 0 1px 3px #000; }
+.fz-progress-label #progress-pct { margin-left: auto; color: var(--fz-gold); }
+.fz-progress-track { height: 6px; background: rgba(14, 15, 18, 0.8); border: 1px solid var(--fz-line); }
+.fz-progress-track i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #b88a23, var(--fz-gold)); }
+.fz-progress.cancelled .fz-progress-track i { background: var(--fz-error); }
+
+/* Texto de ajuda */
+.fz-text { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); background: var(--fz-bg); border-left: 3px solid var(--fz-gold); padding: 10px 14px; font-size: 13px; font-weight: 600; }
+
+/* Notificações */
+.fz-notify { position: absolute; top: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; width: 300px; }
+.fz-toast { background: var(--fz-bg); border: 1px solid var(--fz-line); border-left: 3px solid var(--fz-info); padding: 10px 14px; font-size: 13px; line-height: 1.35; animation: fz-slide 0.2s ease-out; }
+.fz-toast.success { border-left-color: var(--fz-success); }
+.fz-toast.error { border-left-color: var(--fz-error); }
+.fz-toast.warning { border-left-color: var(--fz-warning); }
+.fz-toast.out { opacity: 0; transform: translateX(16px); transition: 0.25s; }
+
+@keyframes fz-in { from { opacity: 0; transform: translate(-50%, -46%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+@keyframes fz-slide { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
