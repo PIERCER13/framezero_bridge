@@ -1,6 +1,3 @@
--- O Qbox expõe a mesma API de jogador do QBCore. As diferenças
--- (grupos, inventário ox, qbx_vehicles) ficam no adaptador "qbox".
-
 local function build(name, priority, resource, getCore)
     local Core
 

@@ -1,7 +1,3 @@
--- Um adaptador só para toda a família vRP. Cada operação tem uma
--- lista de nomes possíveis; vale o primeiro que existe nesta base
--- (ver server/core/vrp.lua).
-
 local vRP, vRPclient
 local fn = {}       -- operação → nome da função nesta base
 local flavor

@@ -1,5 +1,3 @@
--- Feito pela API pública do ND_Core. Ainda não testado num servidor ND.
-
 local function player(src)
     return exports["ND_Core"]:getPlayer(src)
 end
