@@ -5,7 +5,7 @@ lua54 "yes"
 name "framezero_bridge"
 author "piercer"
 version "1.3.0"
-description "FrameZero Bridge (ESX, QBCore, Qbox, vRP, vRPex, Creative)"
+description "framezero Bridge (ESX, QBCore, Qbox, vRP, vRPex, Creative)"
 
 ui_page "web/index.html"
 
