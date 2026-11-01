@@ -207,6 +207,8 @@ function API.Info()
     return framezero.Client.Info()
 end
 
+
+-- Publicação
 local Public = {}
 for name, fn in pairs(API) do
     Public[name] = function(...)
