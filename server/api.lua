@@ -347,7 +347,6 @@ end)
 
 -- Publicação
 -- Cada função pública consulta framezero.Custom primeiro.
-
 local Public = {}
 for name, fn in pairs(API) do
     if type(fn) == "function" then

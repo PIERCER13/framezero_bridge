@@ -1,6 +1,3 @@
--- framezero é a tabela interna da bridge. Os scripts NÃO usam framezero direto:
--- eles recebem a API pública via exports.framezero_bridge:GetFramezero().
-
 framezero = framezero or {}
 
 framezero.Resource = GetCurrentResourceName()
@@ -93,7 +90,6 @@ function framezero.Call(kind, method, ...)
 end
 
 
--- Utilidades
 -- Tipos de notificação aceitos: success · error · warning · info
 -- (também aceita os nomes em português usados por bases vRP)
 local NOTIFY_ALIASES = {
