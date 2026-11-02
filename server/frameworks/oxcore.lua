@@ -1,3 +1,6 @@
+-- Feito pela API pública do ox_core. Ainda não testado; o ox_core muda bastante
+-- entre versões, então confira com o seu e ajuste em custom/server.lua se precisar.
+
 local function player(src)
     local ok, p = pcall(function() return exports.ox_core:GetPlayer(src) end)
     return ok and p or nil

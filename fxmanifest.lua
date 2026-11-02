@@ -4,7 +4,7 @@ lua54 "yes"
 
 name "framezero_bridge"
 author "piercer"
-version "1.3.0"
+version "1.4.2"
 description "FrameZero Bridge (ESX, QBCore, Qbox, vRP, vRPex, Creative)"
 
 ui_page "web/index.html"
@@ -20,6 +20,7 @@ server_scripts {
     "server/frameworks/*.lua",
     "server/inventory/*.lua",
     "server/vehicles/*.lua",
+    "server/phone/*.lua",
     "server/api.lua",
     "custom/server.lua",
 }

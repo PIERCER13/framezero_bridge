@@ -20,20 +20,18 @@ function framezero.Callback.Await(name, timeoutMs, ...)
     SetTimeout(timeoutMs or 15000, function()
         if pending[requestId] then
             pending[requestId] = nil
-            p:resolve({ n = 0 })
+            p:resolve(nil)
         end
     end)
 
-    -- promise:resolve só guarda 1 valor: empacota pra não perder o 2º em diante
-    local r = Citizen.Await(p)
-    return table.unpack(r, 1, r.n)
+    return Citizen.Await(p)
 end
 
 RegisterNetEvent(EVT .. "response", function(requestId, ...)
     local p = pending[requestId]
     if not p then return end
     pending[requestId] = nil
-    p:resolve(table.pack(...))
+    p:resolve(...)
 end)
 
 

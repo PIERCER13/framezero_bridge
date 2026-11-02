@@ -1,0 +1,51 @@
+-- COMO ADICIONAR OUTRO CELULAR (smartphone, smartphone-apps, gksphone,
+-- qs-smartphone, roadphone, high-phone, yflip-phone, renewed-phone...).
+--
+-- A bridge escolhe sozinha o celular com maior "priority" cujo detect() é true.
+-- Implemente SÓ os métodos que o seu celular tiver (os que faltarem apenas
+-- retornam nil/false e avisam uma vez no console):
+--
+--   getNumber(src)                                   -> número (string) ou nil
+--   sendMail(number, { subject, message, sender })   -> true/false
+--   sendMessage(number, message, sender)             -> true/false   (SMS)
+--   notify(src, { app, title, content })             -> true/false
+--
+-- Os scripts usam assim (servidor):
+--   local framezero = exports.framezero_bridge:GetFramezero()
+--   framezero.GetPhoneNumber(src)
+--   framezero.SendMail(src, { subject = "Oi", message = "Bem-vindo!" })
+--   framezero.SendMessage(src, "Seu pedido chegou")
+--   framezero.PhoneNotify(src, { app = "FrameZero", title = "Pronto", content = "..." })
+--
+-- Copie o modelo abaixo, troque "smartphone" pelo nome da resource e os exports
+-- pelos da SUA versão (confira a doc do seu celular), e descomente.
+--
+-- local function safe(fn, fb) local ok, r = pcall(fn); if ok and r ~= nil then return r end; return fb end
+--
+-- framezero.RegisterAdapter("phone", "smartphone", {
+--     priority = 20,
+--     detect   = function() return framezero.IsStarted("smartphone") end,
+--     init     = function() return true end,
+--
+--     getNumber = function(src)
+--         return safe(function() return exports["smartphone"]:GetPhoneNumber(src) end, nil)
+--     end,
+--
+--     sendMail = function(number, data)
+--         return safe(function()
+--             return exports["smartphone"]:SendMail(number, data.sender, data.subject, data.message) ~= false
+--         end, false)
+--     end,
+--
+--     sendMessage = function(number, message, sender)
+--         return safe(function()
+--             return exports["smartphone"]:SendMessage(sender, number, message) ~= false
+--         end, false)
+--     end,
+--
+--     notify = function(src, data)
+--         return safe(function()
+--             return exports["smartphone"]:SendNotification(src, data.app, data.title, data.content) ~= false
+--         end, false)
+--     end,
+-- })

@@ -1,3 +1,6 @@
+-- codem-inventory, core_inventory e ak47_inventory, pelas APIs públicas de cada um.
+-- Ainda não testados: toda chamada passa por pcall e devolve um valor seguro se falhar.
+
 local function safe(fn, fallback)
     local ok, result = pcall(fn)
     if ok and result ~= nil then return result end

@@ -1,3 +1,6 @@
+-- Usado quando nenhum framework é encontrado. Identifica o jogador
+-- pela license da Rockstar; o resto fica para o custom/server.lua.
+
 framezero.RegisterAdapter("framework", "standalone", {
     priority = -1,
 

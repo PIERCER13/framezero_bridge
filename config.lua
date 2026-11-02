@@ -20,6 +20,11 @@ Config.Notify    = "auto"       -- auto · framework · ox_lib · okokNotify · 
 Config.Target    = "auto"       -- auto · ox_target · qb-target · custom (o seu, em custom/client.lua) · none
 Config.Progress  = "auto"       -- auto · ox_lib · framezero
 
+-- Celular (e-mail, SMS, notificação no telefone do jogador)
+-- auto detecta o que está rodando. "none" desliga a integração.
+Config.Phone       = "auto"     -- auto · none · lb-phone · qb-phone · smartphone (jesters-lab) · (outro em custom/)
+Config.PhoneSender = "FrameZero"-- remetente padrão dos e-mails/SMS enviados pela bridge
+
 -- vRP · vRPex · Creative
 -- A bridge lê os arquivos do vrp para descobrir quais funções existem
 -- (getUserId, Passport, HasGroup...). Funciona em bases modificadas.

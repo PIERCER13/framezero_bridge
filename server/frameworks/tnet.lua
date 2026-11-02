@@ -1,3 +1,6 @@
+-- Feito em cima da API pública da tnet (tnet_core + tnet_inventory).
+-- Ainda não testado num servidor tnet: se algo não bater, ajuste em custom/server.lua.
+
 local tNet
 
 local function character(src)

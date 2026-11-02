@@ -21,22 +21,48 @@ end
 
 
 -- Eventos de jogador
-function framezero.Internal.PlayerLoaded(src)
-    for _, cb in ipairs(framezero.Internal.loaded) do
-        local ok, err = pcall(cb, src, API.GetPlayerId(src))
-        if not ok then framezero.Log("error", "OnPlayerLoaded: %s", err) end
+-- Cada callback guarda o resource que o registrou. Se esse resource para ou reinicia,
+-- o funcref fica "morto" e estouraria "Execution of function reference in script host
+-- failed" a cada evento, pra sempre — então ele é removido (no onResourceStop e, por
+-- segurança, na primeira vez que falha assim).
+local function runCallbacks(list, label, ...)
+    local dead
+    for i = 1, #list do
+        local ok, err = pcall(list[i].cb, ...)
+        if not ok then
+            local msg = tostring(err)
+            if msg:find("script host failed", 1, true) or msg:find("function reference", 1, true) then
+                dead = dead or {}
+                dead[#dead + 1] = i
+                framezero.Log("warn", "%s: callback de '%s' removido (o resource parou ou reiniciou).", label, list[i].res or "?")
+            else
+                framezero.Log("error", "%s: %s", label, msg)
+            end
+        end
     end
+    if dead then for j = #dead, 1, -1 do table.remove(list, dead[j]) end end
+end
+
+function framezero.Internal.PlayerLoaded(src)
+    runCallbacks(framezero.Internal.loaded, "OnPlayerLoaded", src, API.GetPlayerId(src))
 end
 
 function framezero.Internal.PlayerUnloaded(src)
-    for _, cb in ipairs(framezero.Internal.unloaded) do
-        local ok, err = pcall(cb, src)
-        if not ok then framezero.Log("error", "OnPlayerUnloaded: %s", err) end
-    end
+    runCallbacks(framezero.Internal.unloaded, "OnPlayerUnloaded", src)
 end
 
-function API.OnPlayerLoaded(cb)   framezero.Internal.loaded[#framezero.Internal.loaded + 1] = cb end
-function API.OnPlayerUnloaded(cb) framezero.Internal.unloaded[#framezero.Internal.unloaded + 1] = cb end
+function API.OnPlayerLoaded(cb)   framezero.Internal.loaded[#framezero.Internal.loaded + 1]     = { cb = cb, res = GetInvokingResource() } end
+function API.OnPlayerUnloaded(cb) framezero.Internal.unloaded[#framezero.Internal.unloaded + 1] = { cb = cb, res = GetInvokingResource() } end
+
+-- Remove os callbacks de um resource assim que ele para (evita funcref morto).
+AddEventHandler("onResourceStop", function(res)
+    if res == framezero.Resource then return end
+    for _, list in ipairs({ framezero.Internal.loaded, framezero.Internal.unloaded }) do
+        for i = #list, 1, -1 do
+            if list[i].res == res then table.remove(list, i) end
+        end
+    end
+end)
 
 
 -- Jogador
@@ -234,6 +260,65 @@ function API.Revive(src, health)
 end
 
 
+-- Celular
+-- Integra com o celular detectado (lb-phone, qb-phone, ...). Se nenhum for
+-- detectado, as funções retornam nil/false (e avisam uma vez no console).
+-- target: source online OU número do telefone (string).
+
+local function phoneCall(method, ...)
+    if not framezero.Active.phone then return nil end
+    return framezero.Call("phone", method, ...)
+end
+
+-- Número do telefone do jogador (string) ou nil.
+function API.GetPhoneNumber(src)
+    if not isOnline(src) then return nil end
+    local n = phoneCall("getNumber", tonumber(src))
+    return n and tostring(n) or nil
+end
+
+-- Resolve um target (source online OU número já pronto) para o número do telefone.
+local function toPhoneNumber(target)
+    if isOnline(target) then return API.GetPhoneNumber(target) end
+    local n = target ~= nil and tostring(target) or ""
+    return n ~= "" and n or nil
+end
+
+-- Envia um e-mail no app de e-mail do celular.
+-- data: { subject?, message, sender? }  → true/false
+function API.SendMail(target, data)
+    data = data or {}
+    local number = toPhoneNumber(target)
+    if not number or type(data.message) ~= "string" then return false end
+    return phoneCall("sendMail", number, {
+        subject = tostring(data.subject or Config.PhoneSender or "FrameZero"),
+        message = data.message,
+        sender  = tostring(data.sender or Config.PhoneSender or "FrameZero"),
+    }) == true
+end
+
+-- Envia um SMS. sender = número/nome de origem (opcional).  → true/false
+-- Passa também o source (quando o target é um jogador online), porque alguns
+-- celulares (ex.: smartphone/jesters-lab) criam o SMS pelo client do jogador.
+function API.SendMessage(target, message, sender)
+    if type(message) ~= "string" then return false end
+    local src = isOnline(target) and tonumber(target) or nil
+    local number = toPhoneNumber(target)
+    if not number and not src then return false end
+    sender = sender and tostring(sender) or tostring(Config.PhoneSender or "FrameZero")
+    return phoneCall("sendMessage", number, tostring(message), sender, src) == true
+end
+
+-- Notificação na tela do celular.
+-- data: { app?, title?, content }  → true/false
+function API.PhoneNotify(src, data)
+    if not isOnline(src) then return false end
+    data = data or {}
+    if type(data.content) ~= "string" then return false end
+    return phoneCall("notify", tonumber(src), { app = data.app, title = data.title, content = data.content }) == true
+end
+
+
 -- Callbacks e banco
 API.RegisterCallback = framezero.Callback.Register
 API.AwaitClient = framezero.Callback.AwaitClient
@@ -245,6 +330,7 @@ function API.Info()
         framework = framezero.Active.framework and framezero.Active.framework.name,
         inventory = framezero.Active.inventory and framezero.Active.inventory.name or "framework",
         vehicles = framezero.Active.vehicles and framezero.Active.vehicles.name or "framework",
+        phone = framezero.Active.phone and framezero.Active.phone.name or "nenhum",
         notify = framezero.Active.notify,
         vrpFlavor = framezero.Active.framework and framezero.Active.framework.flavor and framezero.Active.framework.flavor() or nil,
         vrpFunctions = framezero.Active.framework and framezero.Active.framework.functions and framezero.Active.framework.functions() or nil,
@@ -323,6 +409,7 @@ CreateThread(function()
     end
     framezero.Active.inventory = selectAdapter("inventory", Config.Inventory, "framework")
     framezero.Active.vehicles = selectAdapter("vehicles", Config.Vehicles, "framework")
+    if Config.Phone ~= "none" then framezero.Active.phone = selectAdapter("phone", Config.Phone) end
     if Config.Notify ~= "auto" then
         framezero.Active.notify = Config.Notify
     elseif framezero.Active.framework.name ~= "vrp" and framezero.IsStarted("ox_lib") then
