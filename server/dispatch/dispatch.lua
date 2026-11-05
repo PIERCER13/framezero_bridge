@@ -1,4 +1,3 @@
--- Dispatch no servidor
 -- Atende chamadas diretas de scripts no servidor ou repassa alertas do fallback do cliente.
 
 framezero = framezero or {}

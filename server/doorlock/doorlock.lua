@@ -1,4 +1,3 @@
--- Controle de portas / trancas no servidor
 -- Suporta ox_doorlock, qb-doorlock, nui-doorlock, cd_doorlock e doors_creator.
 
 framezero = framezero or {}
