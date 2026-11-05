@@ -1,5 +1,3 @@
--- Catálogo unificado de Minigames & Hacks do FrameZero
--- Suporta mais de 30 minigames populares da comunidade FiveM.
 -- Permite chamada com callback ou síncrona dentro de thread/corrotina:
 --   local sucesso = framezero.Minigame("ps-circle", 2, 10)
 --   framezero.Minigame("ps-circle", function(sucesso) ... end, 2, 10)
