@@ -6,7 +6,7 @@ framezero.IsServer = IsDuplicityVersion()
 framezero.Ready    = false
 
 -- Adaptadores registrados por tipo, e o escolhido de cada tipo
-framezero.Adapters = { framework = {}, inventory = {}, vehicles = {}, notify = {}, target = {}, progress = {}, phone = {} }
+framezero.Adapters = { framework = {}, inventory = {}, vehicles = {}, notify = {}, target = {}, progress = {}, phone = {}, dispatch = {}, doorlock = {} }
 framezero.Active   = {}
 
 -- Funções sobrescritas pelo dono do servidor (custom/server.lua, custom/client.lua)

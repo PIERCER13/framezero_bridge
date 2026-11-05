@@ -207,6 +207,30 @@ function API.Info()
     return framezero.Client.Info()
 end
 
+-- Minigames e Hacking
+API.Minigame = function(gameType, ...) return framezero.ExecuteMinigame(gameType, ...) end
+API.StartHack = API.Minigame
+
+-- Alerta Policial (Dispatch) e Trancas (Doorlock)
+API.Dispatch = function(data) return framezero.ClientDispatch(data) end
+API.SetDoorState = function(doorId, locked, options) return framezero.Doorlock.SetState(doorId, locked, options) end
+
+-- Streaming & Assets
+API.AwaitLoad = function(checkFn, errorMsg, timeoutMs) return framezero.AwaitLoad(checkFn, errorMsg, timeoutMs) end
+API.LoadModel = function(model, timeoutMs) return framezero.LoadModel(model, timeoutMs) end
+API.LoadAnim = function(dict, timeoutMs) return framezero.LoadAnim(dict, timeoutMs) end
+API.LoadPtfx = function(asset, timeoutMs) return framezero.LoadPtfx(asset, timeoutMs) end
+API.GetItemImage = function(item) return framezero.GetItemImage(item) end
+
+-- Peds & NPCs
+API.CreatePed = function(data) return framezero.CreatePed(data) end
+API.CreatePedAtPoint = function(data) return framezero.CreatePedAtPoint(data) end
+
+-- Jogador (Gênero)
+API.GetGender = function()
+    return GetEntityModel(PlayerPedId()) == GetHashKey("mp_f_freemode_01") and "Female" or "Male"
+end
+
 
 -- Publicação
 local Public = {}

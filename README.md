@@ -5,7 +5,7 @@
 **One layer between the FrameZero scripts and your server.**
 
 Write the script once and it runs on **ESX, QBCore, Qbox, vRP, vRPex, Creative** and more — the bridge
-auto-detects the framework, inventory, garage, notification system, target and phone that are running.
+auto-detects the framework, inventory, garage, notification system, target, phone, police dispatch, and doorlock systems.
 
 ![FiveM](https://img.shields.io/badge/FiveM-resource-F40552?style=for-the-badge)
 ![Frameworks](https://img.shields.io/badge/ESX%20%C2%B7%20QBCore%20%C2%B7%20Qbox%20%C2%B7%20vRP%20%C2%B7%20Creative-2b2b2b?style=for-the-badge)
@@ -20,11 +20,11 @@ auto-detects the framework, inventory, garage, notification system, target and p
 
 ## 🎯 What it's for
 
-Every FrameZero script talks to your server through **one** API, instead of each one reimplementing support
-for every framework, inventory and notification system. You install the bridge once; the scripts just use the
-global `framezero`. On most servers there is **nothing to configure** — everything in `config.lua` is `"auto"`.
+Every FrameZero script talks to your server through **one** unified API, instead of each script reimplementing support
+for every framework, inventory, and notification system. You install the bridge once; the scripts just use the
+global `framezero`. On most servers there is **nothing to configure** — everything in `config.lua` stays `"auto"`.
 
-> Author: **piercer** · Current version: **1.4.0**
+> Author: **piercer** · Current version: **1.5.0**
 
 ## 🚀 Installation
 
@@ -34,8 +34,8 @@ global `framezero`. On most servers there is **nothing to configure** — everyt
    ensure framezero_bridge
    ensure your_framezero_script
    ```
-3. On most servers **nothing else is needed** — everything in `config.lua` stays `"auto"`. Only touch it to
-   force something or if you have a modified base.
+3. On most servers **nothing else is needed** — everything in `config.lua` stays `"auto"`. Only edit it to
+   force something or if you run a custom server build.
 
 ## 🧩 Using it in your scripts
 
@@ -51,10 +51,11 @@ Now the `framezero` global is available on the **server** and the **client**:
 -- Server
 framezero.Notify(source, "success", "Done!")
 framezero.AddItem(source, "water", 2)
+framezero.Dispatch({ code = "10-90", title = "Store Robbery", coords = vec3(100, 200, 30) })
 
 -- Client
-if framezero.Progress("Crafting...", 5000) then
-    framezero.Notify("success", "Finished!")
+if framezero.Minigame("ps-circle", 2, 10) then
+    framezero.Notify("success", "Hack completed!")
 end
 ```
 
@@ -76,6 +77,8 @@ end)
 | `GetSource(id)` | online source from the id |
 | `GetPlayers()` | list of online sources |
 | `GetName(src)` | character name |
+| `GetGender(src)` | `"Male"` or `"Female"` |
+| `IsPlayerDead(src)` | `bool` (whether player is dead or in coma) |
 | `HasPermission(src, perm)` | `bool` (group/job/ACE, per framework) |
 | `GetJob(src)` | `{ name, label, grade, gradeLabel, onDuty }` |
 | `OnPlayerLoaded(cb)` / `OnPlayerUnloaded(cb)` | registers a `(src, id)` callback |
@@ -101,12 +104,49 @@ end)
 ### Phone 📱
 `GetPhoneNumber(src)` · `SendMail(target, { subject, message, sender })` ·
 `SendMessage(target, message, sender)` (SMS) · `PhoneNotify(src, { app, title, content })`
-> `target` = source **or** number. Anything the phone doesn't support returns nil/false and warns once.
+> `target` = source **or** number. Supports `lb-phone`, `qb-phone`, `smartphone`, `qs-smartphone`, `gksphone`, `npwd`, `yseries`, `roadphone`, `okokPhone`, `high-phone`.
 
-### Callbacks & database
+### Police Dispatch & Doorlock 🚨
+* `Dispatch(data)` — Triggers a police alert with auto-detection (`code`, `title`, `message`, `coords`, `jobs`, `blipText`, `time`).
+* `SetDoorState(doorId, locked, options)` — Locks/unlocks doors on the server (`ox_doorlock`, `qb-doorlock`, `nui-doorlock`, `cd_doorlock`, `doors_creator`).
+
+### Logs & Webhooks (Discord / Loki) 📋
+* `LogDiscord(title, message, options)` — Batched Discord logging with rate-limit protection or immediate delivery (`options.immediate = true`).
+
+### Callbacks & Database
 `RegisterCallback(name, fn)` · `AwaitClient(src, name, timeout, ...)` · `DB` · `Info()`
 
+---
+
 ## 🖥️ Client API
+
+### Minigames & Hacking 🎮
+Unified execution across 30+ popular FiveM minigames. Supports both synchronous (coroutine wait) and callback styles:
+```lua
+-- Synchronous:
+local success = framezero.Minigame("ps-circle", 2, 10)
+
+-- Or callback:
+framezero.Minigame("rm-typinggame", function(success)
+    print("Result:", success)
+end)
+```
+* **ps-ui**: `ps-circle`, `ps-maze`, `ps-varhack`, `ps-thermite`, `ps-scrambler`
+* **rm_minigames**: `rm-typinggame`, `rm-timedlockpick`, `rm-timedaction`, `rm-quicktimeevent`, `rm-combinationlock`, `rm-buttonmashing`, `rm-angledlockpick`, `rm-fingerprint`, `rm-circleClick`, `rm-hotwirehack`, `rm-hackerminigame`, `rm-safecrack`
+* **bl_ui**: `bl-circlesum`, `bl-digitdazzle`, `bl-lightsout`, `bl-minesweeper`, `bl-pathfind`, `bl-printlock`, `bl-untangle`, `bl-wavematch`, `bl-wordwiz`
+* **glitch-minigames**: `gl-firewall-pulse`, `gl-backdoor-sequence`, `gl-circuit-rhythm`, `gl-surge-override`, `gl-circuit-breaker`, `gl-data-crack`, `gl-brute-force`, `gl-var-hack`
+* **Others**: `ox-skillcheck`, `memorygame-thermite`, `ran-memorycard`, `ran-openterminal`, `hacking-opengame`, `howdy-begin`, `sn-memorygame`, `sn-skillcheck`, `sn-thermite`, `sn-keypad`, `sn-colorpicker`
+
+### Police Dispatch & Doorlock 🚨
+* `Dispatch(data)` — Sends dispatch notifications from client (`cd_dispatch`, `ps-dispatch`, `qs-dispatch`, `linden_outlawalert` or framework fallback with sound & blip).
+* `SetDoorState(doorId, locked, options)` — Updates door state from client.
+
+### Safe Streaming & Smart Peds 🧍
+* `AwaitLoad(checkFn, errorMsg, timeoutMs)` — Safely awaits conditions with timeouts to prevent hanging threads.
+* `LoadModel(model, timeoutMs)` · `LoadAnim(dict, timeoutMs)` · `LoadPtfx(asset, timeoutMs)` — Load models, animation dictionaries, and particle effects with validation.
+* `GetItemImage(item)` — Returns the `nui://` URL for an item's image based on the active inventory.
+* `CreatePed(data)` — Spawns a ped with scenario, freeze, invincibility, and cleanup on resource stop.
+* `CreatePedAtPoint(data)` — **Proximity-based smart spawner**: automatically creates the NPC when the player is within range (`distance`) and despawns when leaving, saving memory and FPS.
 
 ### Interface
 `Notify(kind, message, duration)` · `Progress(label, duration, opts)` (returns `true` if it completed;
@@ -116,25 +156,29 @@ opts `{ canCancel, disableControls, disableMove, disableCar }`) · `ShowText(tex
 `AddSphere(id, coords, radius, options)` · `AddModel(id, models, options)` · `RemoveTarget(id)`
 
 Each `option`: `{ label, icon?, distance?, onSelect = function(entity) end, canInteract? = function(entity) end }`.
-Works with **ox_target**, **qb-target**, your **own** target (see custom) or, with none, falls back to
-on-screen text + the **E** key.
+Works with **ox_target**, **qb-target**, your **own** target (see custom) or fallback to on-screen text + the **E** key.
 
-### Callbacks & player
-`TriggerCallback(name, timeoutMs, ...)` (calls a server callback) ·
-`RegisterCallback(name, fn)` (answers server requests) · `OnPlayerLoaded(cb)` ·
-`IsLoaded()` · `Info()`
+### Callbacks & Player
+`TriggerCallback(name, timeoutMs, ...)` · `RegisterCallback(name, fn)` · `OnPlayerLoaded(cb)` · `IsLoaded()` · `GetGender()` · `Info()`
+
+---
 
 ## 🧰 Supported systems (auto-detected)
 
 | Type | Options |
 |---|---|
-| **Framework** | ESX · QBCore · Qbox · vRP · vRPex · Creative · tnet · ndcore · oxcore · standalone |
-| **Inventory** | ox_inventory · qs-inventory · tnet_inventory · codem-inventory · core_inventory · ak47_inventory · (framework's) |
+| **Framework** | ESX · QBCore · Qbox · vRP · vRPex · Creative (all versions) · tnet · ndcore · oxcore · standalone |
+| **Inventory** | ox_inventory · qs-inventory · qs-inventory-pro · tnet_inventory · codem-inventory · core_inventory · ak47_inventory · (framework's) |
 | **Garage** | nation-garages · qbx_vehicles · (framework's) |
 | **Notification** | ox_lib · okokNotify · mythic_notify · (framework's) |
 | **Target** | ox_target · qb-target · custom · none |
 | **Progress** | ox_lib · framezero |
-| **Phone** | **lb-phone** (full) · **qb-phone** (number) · others via adapter (see below) |
+| **Phone** | lb-phone · qb-phone · smartphone · qs-smartphone · qs-smartphone-pro · gksphone · npwd · yseries · yflip-phone · roadphone · okokPhone · high-phone |
+| **Dispatch** | cd_dispatch · ps-dispatch · qs-dispatch · linden_outlawalert · framework fallback |
+| **Doorlock** | ox_doorlock · qb-doorlock · nui-doorlock · cd_doorlock · doors_creator |
+| **Minigames** | ps-ui · bl_ui (9 games) · rm_minigames (12 games) · glitch-minigames (8 games) · ox-skillcheck · memorygame · sn-hacking · ran · howdy |
+
+---
 
 ## ⚙️ Configuration (`config.lua`)
 
@@ -149,13 +193,21 @@ Config.Vehicles  = "auto"
 Config.Notify    = "auto"
 Config.Target    = "auto"
 Config.Progress  = "auto"
-Config.Phone     = "auto"    -- auto · none · lb-phone · qb-phone · (your adapter)
-Config.PhoneSender = "FrameZero"  -- default sender for the e-mails/SMS
+Config.Dispatch  = "auto"
+Config.Doorlock  = "auto"
+Config.Phone     = "auto"
+Config.PhoneSender = "FrameZero"
 
-Config.Vrp = { Resource = "vrp", NotifyStyle = "auto", CashItem = "dollars" }
-Config.DirtyMoney = { esx = { account = "black_money" }, qbcore = { item = "markedbills" }, ... }
-Config.VehicleDefaults = { Garage = "pillboxgarage", Type = "car", PlatePrefix = "", PlateLength = 8 }
-Config.Keys = { Accept = "Y", Decline = "N", Interact = 38 }
+-- Webhook & Audit Logging
+Config.Logger = {
+    discord = {
+        webhook       = "",
+        name          = "FrameZero Logs",
+        avatar        = "",
+        color         = 3447003,
+        flushInterval = 15,
+    }
+}
 ```
 
 ## 🧱 Modified base? Use `custom/`
@@ -170,40 +222,6 @@ framezero.Custom.GiveVehicle = function(target, model, opts)
     exports["my_garage"]:AddVehicle(id, model, opts and opts.plate)
     return opts and opts.plate
 end
-```
-
-## 📱 Adding a phone (or another adapter)
-
-The bridge picks the adapter with the highest **priority** whose `detect()` is true. To add a phone, create a
-file in `server/phone/` (see the commented template in `server/phone/_custom.lua`) and register:
-
-```lua
-framezero.RegisterAdapter("phone", "my_phone", {
-    priority = 20,
-    detect   = function() return framezero.IsStarted("my_phone") end,
-    init     = function() return true end,
-
-    getNumber   = function(src) ... end,                        -- phone number
-    sendMail    = function(number, data) ... end,               -- { subject, message, sender }
-    sendMessage = function(number, message, sender) ... end,    -- SMS
-    notify      = function(src, data) ... end,                  -- { app, title, content }
-})
-```
-
-Implement only the methods your phone has — the missing ones just return nil/false. The same
-`RegisterAdapter(kind, name, def)` pattern works for `framework`, `inventory`, `vehicles`, etc.
-
-> **Ready-made phones:** `lb-phone` (number + e-mail, tested) and `qb-phone` (number).
-> For **smartphone**, **gksphone**, **qs-smartphone**, **roadphone** and others, use the template in
-> `server/phone/_custom.lua` with your version's exports.
-
-## 🩺 Diagnostics
-
-With `Config.Debug = true`, the console shows which adapter handled each call.
-`framezero.Info()` (server or client) returns what was detected:
-
-```lua
--- { version, framework, inventory, vehicles, phone, notify, vrpFlavor? }
 ```
 
 ## 📄 License

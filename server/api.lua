@@ -100,6 +100,53 @@ function API.GetJob(src)
     return framezero.Call("framework", "getJob", tonumber(src))
 end
 
+-- Gênero do jogador: "Male" ou "Female"
+function API.GetGender(src)
+    if not isOnline(src) then return "Male" end
+    local fw = framework() and framework().name
+    if fw == "qbcore" or fw == "qbox" then
+        local QB = exports["qb-core"]:GetCoreObject()
+        local p = QB.Functions.GetPlayer(tonumber(src))
+        if p and p.PlayerData and p.PlayerData.charinfo then
+            return p.PlayerData.charinfo.gender == 0 and "Male" or "Female"
+        end
+    elseif fw == "esx" then
+        local ESX = exports["es_extended"]:getSharedObject()
+        local xPlayer = ESX.GetPlayerFromId(tonumber(src))
+        if xPlayer then
+            local sex = xPlayer.get and xPlayer.get("sex")
+            return (sex == "f" or sex == "female" or sex == 1) and "Female" or "Male"
+        end
+    elseif fw == "vrp" then
+        local id = API.GetPlayerId(src)
+        if id and vRP and vRP.getUserIdentity then
+            local ident = vRP.getUserIdentity(tonumber(id))
+            if ident and (ident.sex == "f" or ident.sex == "F" or ident.gender == "f" or ident.gender == "Female") then
+                return "Female"
+            end
+        end
+    end
+    return "Male"
+end
+
+-- Verifica se o jogador está morto / em coma
+function API.IsPlayerDead(src)
+    if not isOnline(src) then return false end
+    local fw = framework() and framework().name
+    if fw == "qbcore" or fw == "qbox" then
+        local QB = exports["qb-core"]:GetCoreObject()
+        local p = QB.Functions.GetPlayer(tonumber(src))
+        if p and p.PlayerData and p.PlayerData.metadata then
+            return (p.PlayerData.metadata["isdead"] == true or p.PlayerData.metadata["inlaststand"] == true)
+        end
+    end
+    local ped = GetPlayerPed(tonumber(src))
+    if ped and DoesEntityExist(ped) then
+        return GetEntityHealth(ped) <= 101
+    end
+    return false
+end
+
 
 -- Dinheiro
 -- account: "cash" (padrão) · "bank" · "dirty"
@@ -324,6 +371,11 @@ API.RegisterCallback = framezero.Callback.Register
 API.AwaitClient = framezero.Callback.AwaitClient
 API.DB = framezero.DB
 
+-- Módulos Adicionais (Dispatch, Doorlock, Logger)
+API.Dispatch = function(data) return framezero.Dispatch.Send(data) end
+API.SetDoorState = function(doorId, locked, options) return framezero.Doorlock.SetState(doorId, locked, options) end
+API.LogDiscord = function(title, message, opts) return framezero.Logger.LogDiscord(title, message, opts) end
+
 function API.Info()
     return {
         version = framezero.Version,
@@ -331,6 +383,8 @@ function API.Info()
         inventory = framezero.Active.inventory and framezero.Active.inventory.name or "framework",
         vehicles = framezero.Active.vehicles and framezero.Active.vehicles.name or "framework",
         phone = framezero.Active.phone and framezero.Active.phone.name or "nenhum",
+        dispatch = framezero.Active.dispatch and framezero.Active.dispatch.name or (Config.Dispatch or "auto"),
+        doorlock = framezero.Active.doorlock and framezero.Active.doorlock.name or (Config.Doorlock or "auto"),
         notify = framezero.Active.notify,
         vrpFlavor = framezero.Active.framework and framezero.Active.framework.flavor and framezero.Active.framework.flavor() or nil,
         vrpFunctions = framezero.Active.framework and framezero.Active.framework.functions and framezero.Active.framework.functions() or nil,
@@ -409,6 +463,8 @@ CreateThread(function()
     framezero.Active.inventory = selectAdapter("inventory", Config.Inventory, "framework")
     framezero.Active.vehicles = selectAdapter("vehicles", Config.Vehicles, "framework")
     if Config.Phone ~= "none" then framezero.Active.phone = selectAdapter("phone", Config.Phone) end
+    if Config.Dispatch and Config.Dispatch ~= "none" then framezero.Active.dispatch = selectAdapter("dispatch", Config.Dispatch) end
+    if Config.Doorlock and Config.Doorlock ~= "none" then framezero.Active.doorlock = selectAdapter("doorlock", Config.Doorlock) end
     if Config.Notify ~= "auto" then
         framezero.Active.notify = Config.Notify
     elseif framezero.Active.framework.name ~= "vrp" and framezero.IsStarted("ox_lib") then

@@ -19,11 +19,25 @@ Config.Vehicles  = "auto"       -- auto · framework · nation-garages · qbx_ve
 Config.Notify    = "auto"       -- auto · framework · ox_lib · okokNotify · mythic_notify
 Config.Target    = "auto"       -- auto · ox_target · qb-target · custom (o seu, em custom/client.lua) · none
 Config.Progress  = "auto"       -- auto · ox_lib · framezero
+Config.Dispatch  = "auto"       -- auto · cd_dispatch · ps-dispatch · qs-dispatch · linden_outlawalert · framework · none
+Config.Doorlock  = "auto"       -- auto · ox_doorlock · qb-doorlock · nui-doorlock · cd_doorlock · doors_creator · none
 
 -- Celular (e-mail, SMS, notificação no telefone do jogador)
 -- auto detecta o que está rodando. "none" desliga a integração.
-Config.Phone       = "auto"     -- auto · none · lb-phone · qb-phone · smartphone (jesters-lab) · (outro em custom/)
+-- Suportados: lb-phone · qb-phone · smartphone · qs-smartphone · gksphone · npwd · yseries · roadphone · okokphone · high-phone
+Config.Phone       = "auto"
 Config.PhoneSender = "FrameZero"-- remetente padrão dos e-mails/SMS enviados pela bridge
+
+-- Auditoria e Webhooks (Discord, Loki/Grafana)
+Config.Logger = {
+    discord = {
+        webhook       = "",     -- URL do webhook do Discord (deixe vazio se não quiser usar)
+        name          = "FrameZero Logs",
+        avatar        = "",
+        color         = 3447003,
+        flushInterval = 15,     -- agrupa e envia a cada 15 segundos (anti-rate limit)
+    }
+}
 
 -- vRP · vRPex · Creative
 -- A bridge lê os arquivos do vrp para descobrir quais funções existem
