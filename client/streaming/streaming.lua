@@ -1,5 +1,3 @@
--- Utilitários de Streaming, Assets, Peds e Imagens de Itens para o FrameZero
-
 framezero = framezero or {}
 framezero.Streaming = framezero.Streaming or {}
 

@@ -1,4 +1,3 @@
--- Compatibilidade transparente com Anticheats no servidor
 -- Marca ações legítimas do servidor (teleportes, models, spawn de entidades) e oferece ban/kick seguro.
 
 framezero = framezero or {}
