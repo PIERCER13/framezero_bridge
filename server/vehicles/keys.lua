@@ -1,4 +1,3 @@
--- Módulo de Chaves de Veículos no Servidor
 -- Suporta qb-vehiclekeys, qbx_vehiclekeys, qs-vehiclekeys, wasabi_carlock e bases vRP/Creative.
 
 framezero = framezero or {}
