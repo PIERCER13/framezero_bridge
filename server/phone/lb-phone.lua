@@ -1,4 +1,3 @@
--- lb-phone — usa as exports oficiais do servidor (GetEquippedPhoneNumber, SendMail).
 -- https://docs.lbphone.com/
 
 local function safe(fn, fb)
