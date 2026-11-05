@@ -52,3 +52,62 @@ framezero.RegisterAdapter("vehicles", "qbx_vehicles", {
         return framezero.DB.Scalar("SELECT 1 FROM player_vehicles WHERE plate = ? LIMIT 1", { plate }) ~= nil
     end,
 })
+
+
+-- qs-advancedgarages (Quasar Store)
+-- https://docs.quasar-store.com
+framezero.RegisterAdapter("vehicles", "qs-advancedgarages", {
+    priority = 25,
+
+    detect = function() return framezero.IsStarted("qs-advancedgarages") end,
+    init = function() return true end,
+
+    giveVehicle = function(id, model, plate, opts)
+        local ok = pcall(function()
+            if exports["qs-advancedgarages"].GiveVehicle then
+                exports["qs-advancedgarages"]:GiveVehicle(id, model, plate, opts and opts.garage or Config.VehicleDefaults.Garage)
+            end
+        end)
+        return ok, plate
+    end,
+
+    hasVehicle = function(id, model)
+        return framezero.DB.Scalar("SELECT 1 FROM player_vehicles WHERE (citizenid = ? OR charid = ? OR owner = ?) AND vehicle = ? LIMIT 1", { id, id, id, model }) ~= nil
+    end,
+
+    plateExists = function(plate)
+        local trimmed = plate:gsub("^%s*(.-)%s*$", "%1")
+        if exports["qs-advancedgarages"].IsVehicleInsured then
+            local ok, insured = pcall(function() return exports["qs-advancedgarages"]:IsVehicleInsured(trimmed) end)
+            if ok and insured ~= nil then return true end
+        end
+        return framezero.DB.Scalar("SELECT 1 FROM player_vehicles WHERE plate = ? LIMIT 1", { trimmed }) ~= nil
+    end,
+})
+
+
+-- nn_garages (NANO Scripts)
+-- https://nanoscripts.gitbook.io/docs
+framezero.RegisterAdapter("vehicles", "nn_garages", {
+    priority = 22,
+
+    detect = function() return framezero.IsStarted("nn_garages") end,
+    init = function() return true end,
+
+    giveVehicle = function(id, model, plate, opts)
+        local ok = pcall(function()
+            if exports["nn_garages"] and exports["nn_garages"].AddVehicle then
+                exports["nn_garages"]:AddVehicle(id, model, plate, opts)
+            end
+        end)
+        return ok, plate
+    end,
+
+    hasVehicle = function(id, model)
+        return framezero.DB.Scalar("SELECT 1 FROM player_vehicles WHERE (citizenid = ? OR owner = ?) AND vehicle = ? LIMIT 1", { id, id, model }) ~= nil
+    end,
+
+    plateExists = function(plate)
+        return framezero.DB.Scalar("SELECT 1 FROM player_vehicles WHERE plate = ? LIMIT 1", { plate }) ~= nil
+    end,
+})

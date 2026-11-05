@@ -47,13 +47,15 @@ end
 
 -- 5. Imagem do item (URL nui://)
 local INVENTORY_PATHS = {
-    { res = "ox_inventory",     fmt = "nui://ox_inventory/web/images/%s.png" },
-    { res = "codem-inventory",  fmt = "nui://codem-inventory/html/itemimages/%s.png" },
-    { res = "qs-inventory-pro", fmt = "nui://qs-inventory-pro/html/images/%s.png" },
-    { res = "qs-inventory",     fmt = "nui://qs-inventory/html/images/%s.png" },
-    { res = "qb-inventory",     fmt = "nui://qb-inventory/html/images/%s.png" },
-    { res = "ps-inventory",     fmt = "nui://ps-inventory/html/images/%s.png" },
-    { res = "lj-inventory",     fmt = "nui://lj-inventory/html/images/%s.png" },
+    { res = "ox_inventory",      fmt = "nui://ox_inventory/web/images/%s.png" },
+    { res = "snt-inventory-pro", fmt = "nui://snt-inventory-pro/web/assets/images/%s.png" },
+    { res = "snt-inventory",     fmt = "nui://snt-inventory/web/assets/images/%s.png" },
+    { res = "codem-inventory",   fmt = "nui://codem-inventory/html/itemimages/%s.png" },
+    { res = "qs-inventory-pro",  fmt = "nui://qs-inventory-pro/html/images/%s.png" },
+    { res = "qs-inventory",      fmt = "nui://qs-inventory/html/images/%s.png" },
+    { res = "qb-inventory",      fmt = "nui://qb-inventory/html/images/%s.png" },
+    { res = "ps-inventory",      fmt = "nui://ps-inventory/html/images/%s.png" },
+    { res = "lj-inventory",      fmt = "nui://lj-inventory/html/images/%s.png" },
 }
 
 function framezero.GetItemImage(item)

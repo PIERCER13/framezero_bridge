@@ -231,6 +231,37 @@ API.GetGender = function()
     return GetEntityModel(PlayerPedId()) == GetHashKey("mp_f_freemode_01") and "Female" or "Male"
 end
 
+-- Fechar Inventário Ativo
+function API.CloseInventory()
+    if framezero.IsStarted("ox_inventory") and exports["ox_inventory"].closeInventory then
+        exports["ox_inventory"]:closeInventory()
+    elseif framezero.IsStarted("snt-inventory-pro") or framezero.IsStarted("snt-inventory") then
+        TriggerEvent("snt-inventory:client:close")
+    elseif framezero.IsStarted("qs-inventory") or framezero.IsStarted("qs-inventory-pro") then
+        TriggerEvent("qs-inventory:client:closeInventory")
+    elseif framezero.IsStarted("qb-inventory") then
+        TriggerEvent("inventory:client:close")
+    elseif framezero.IsStarted("codem-inventory") then
+        TriggerEvent("codem-inventory:client:close")
+    end
+    if framezero.IsStarted("heyy_houses") then
+        TriggerEvent("heyy_houses:closeUI")
+    end
+    SetNuiFocus(false, false)
+end
+
+RegisterNetEvent("framezero_bridge:client:closeInventory", function()
+    API.CloseInventory()
+end)
+
+-- Anticheat (evita falsos positivos de teleporte, godmode, armas, invisibilidade)
+API.Anticheat = framezero.Anticheat
+
+-- Chaves de Veículos (Client)
+API.GiveVehicleKeys = function(plate) return framezero.VehicleKeys and framezero.VehicleKeys.Give(plate) end
+API.RemoveVehicleKeys = function(plate) return framezero.VehicleKeys and framezero.VehicleKeys.Remove(plate) end
+API.HasVehicleKeys = function(plate) return framezero.VehicleKeys and framezero.VehicleKeys.Has(plate) end
+
 
 -- Publicação
 local Public = {}

@@ -24,7 +24,7 @@ Cada script da FrameZero conversa com o seu servidor através de **uma** API, em
 a cada framework, inventário e sistema de notificação. Você instala a bridge uma vez; os scripts usam apenas a
 global `framezero`. Na maioria dos servidores não há **nada para configurar** — tudo no `config.lua` fica como `"auto"`.
 
-> Autor: **piercer** · Versão atual: **1.5.0**
+> Autor: **piercer** · Versão atual: **1.6.0**
 
 ## 🚀 Instalação
 
@@ -81,19 +81,34 @@ end)
 | `IsPlayerDead(src)` | `bool` (se o jogador está morto/em coma) |
 | `HasPermission(src, perm)` | `bool` (grupo/job/ACE, conforme o framework) |
 | `GetJob(src)` | `{ name, label, grade, gradeLabel, onDuty }` |
+| `SetDuty(src, onDuty)` | `bool` (altera status de serviço do jogador) |
 | `OnPlayerLoaded(cb)` / `OnPlayerUnloaded(cb)` | registra callback `(src, id)` |
 
 ### Dinheiro — `account`: `"cash"` (padrão) · `"bank"` · `"dirty"`
 `GetMoney(src, account)` · `AddMoney(src, amount, account)` · `RemoveMoney(src, amount, account)`
 
-### Itens — usa o inventário detectado (ox, qs, etc.) ou o do framework
-`GetItemCount(src, item, metadata)` · `HasItem(src, item, amount, metadata)` ·
-`CanCarry(src, item, amount, metadata)` · `AddItem(src, item, amount, metadata)` ·
-`RemoveItem(src, item, amount, metadata)` · `GetInventory(src)` (lista de
-`{ name, label, amount, slot?, metadata?, weight? }`) · `GetItemLabel(item)` · `GetItemWeight(item)`
+### Sociedade e Empresas 💼
+* `GetSocietyMoney(societyName)` — Consulta saldo da conta de sociedade/empresa (`Renewed-Banking`, `qb-banking`, `qb-management`, `esx_addonaccount`, `vRP`).
+* `AddSocietyMoney(societyName, amount)` — Adiciona fundos à conta da sociedade.
+* `RemoveSocietyMoney(societyName, amount)` — Remove fundos da conta da sociedade.
 
-### Veículos
-`GeneratePlate()` · `GiveVehicle(target, model, opts)` (opts `{ plate?, garage?, type? }`, retorna a placa ou `false`) · `HasVehicle(target, model)`
+### Itens & Stashes — usa o inventário detectado (ox, qs, snt, etc.) ou o do framework
+* `GetItemCount(src, item, metadata)` · `HasItem(src, item, amount, metadata)` · `CanCarry(src, item, amount, metadata)` · `AddItem(src, item, amount, metadata)` · `RemoveItem(src, item, amount, metadata)` · `GetInventory(src)` · `GetItemLabel(item)` · `GetItemWeight(item)`
+* `CloseInventory(src)` — Fecha a interface do inventário ativo (evita telas sobrepostas).
+* `RegisterUsableItem(item, function(src) end)` — Registra item usável no framework ativo.
+* **Stashes Compartilhados (Baús/Cofres):**
+  * `RegisterStash(id, label, slots, maxWeight, owner)` — Registra ou prepara um stash compartilhado (`ox_inventory`, `qs-inventory`, `snt-inventory`).
+  * `StashCount(id, item)` — Consulta a quantidade de um item no stash.
+  * `StashAdd(id, item, count, metadata)` — Deposita itens no stash.
+  * `StashRemove(id, item, count, metadata)` — Retira itens do stash.
+
+### Veículos e Chaves 🔑
+* `GeneratePlate()` — Gera placa aleatória ou com prefixo.
+* `GiveVehicle(target, model, opts)` — Entrega veículo ao jogador (opts `{ plate?, garage?, type?, keys? }`, entrega de chaves automática por padrão).
+* `HasVehicle(target, model)` — Verifica posse do veículo.
+* `GetVehicleOwner(plate)` — Retorna o identificador único do proprietário (`citizenid`, `identifier` ou `user_id`).
+* `GiveVehicleKeys(target, plate)` — Entrega as chaves do veículo ao jogador (`qb-vehiclekeys`, `qbx_vehiclekeys`, `qs-vehiclekeys`, `wasabi_carlock`, `vRP`).
+* `RemoveVehicleKeys(target, plate)` — Remove as chaves do veículo do jogador.
 > `target` = source online **ou** id do personagem.
 
 ### Interface
@@ -112,6 +127,10 @@ end)
 
 ### Logs & Auditoria (Discord / Loki) 📋
 * `LogDiscord(title, message, options)` — Envia logs com buffer e lote inteligente (anti-rate limit do Discord) ou imediato (`options.immediate = true`).
+
+### Compatibilidade com Anticheat (Server) 🛡️
+Evita banimentos injustos comunicando ações legítimas do servidor ao anticheat ativo:
+`Anticheat.Teleport(src)` · `Anticheat.PedModel(src, model)` · `Anticheat.Entity(entity, model)` · `Anticheat.Weapon(src, hash, given)` · `Anticheat.Heal(src)` · `Anticheat.HasBypass(src)` · `Anticheat.Ban(src, reason)` · `Anticheat.Kick(src, reason)`
 
 ### Callbacks e Banco de Dados
 `RegisterCallback(name, fn)` · `AwaitClient(src, name, timeout, ...)` · `DB` · `Info()`
@@ -148,9 +167,19 @@ end)
 * `CreatePed(data)` — Spawna ped com congelamento, cenário, invulnerabilidade e limpeza automática ao parar a resource.
 * `CreatePedAtPoint(data)` — **Spawn inteligente por proximidade**: o ped só é criado na memória quando o jogador entra no raio configurado (`distance`) e é removido ao se afastar, economizando FPS e memória de streaming.
 
+### Chaves de Veículos (Client) 🔑
+* `GiveVehicleKeys(plate)` — Adiciona chave do veículo para o cliente.
+* `RemoveVehicleKeys(plate)` — Remove posse da chave do cliente.
+* `HasVehicleKeys(plate)` — Verifica se o jogador possui a chave do veículo localmente.
+
 ### Interface
 `Notify(kind, message, duration)` · `Progress(label, duration, opts)` (retorna `true` se completou;
-opts `{ canCancel, disableControls, disableMove, disableCar }`) · `ShowText(text)` · `HideText()`
+opts `{ canCancel, disableControls, disableMove, disableCar }`) · `ShowText(text)` · `HideText()` ·
+`CloseInventory()` (fecha a interface da mochila/inventário na tela)
+
+### Compatibilidade com Anticheat (Client) 🛡️
+Avisa o anticheat antes de executar ações de minigames, cutscenes ou perseguições:
+`Anticheat.Teleport()` · `Anticheat.SetInvincible(on)` · `Anticheat.SetVisible(visible)` · `Anticheat.SetSpectating(on)` · `Anticheat.PedModel(model)` · `Anticheat.Spawn(kind, model)` · `Anticheat.Camera(cam)` · `Anticheat.CameraDestroyed(cam)` · `Anticheat.Weapon(hash, given)` · `Anticheat.Heal()` · `Anticheat.Revive()` · `Anticheat.ReleaseAll()`
 
 ### Target
 `AddSphere(id, coords, radius, options)` · `AddModel(id, models, options)` · `RemoveTarget(id)`
@@ -168,11 +197,13 @@ Funciona com **ox_target**, **qb-target**, target **próprio** (ver custom) ou f
 | Tipo | Opções |
 |---|---|
 | **Framework** | ESX · QBCore · Qbox · vRP · vRPex · Creative (todas as versões) · tnet · ndcore · oxcore · standalone |
-| **Inventário** | ox_inventory · qs-inventory · qs-inventory-pro · tnet_inventory · codem-inventory · core_inventory · ak47_inventory · (do framework) |
-| **Garagem** | nation-garages · qbx_vehicles · (do framework) |
+| **Inventário & Stashes** | ox_inventory · snt-inventory-pro · snt-inventory · qs-inventory · qs-inventory-pro · tnet_inventory · codem-inventory · core_inventory · ak47_inventory · (do framework) |
+| **Garagem & Chaves** | qb-vehiclekeys · qbx_vehiclekeys · qs-vehiclekeys · wasabi_carlock · nation-garages · qs-advancedgarages · nn_garages · qbx_vehicles · (do framework) |
+| **Sociedades / Bancos** | Renewed-Banking · qb-banking · qb-management · esx_addonaccount · vRP/Creative |
 | **Notificação** | ox_lib · okokNotify · mythic_notify · (do framework) |
 | **Target** | ox_target · qb-target · custom · none |
 | **Progresso** | ox_lib · framezero |
+| **Anticheat** | FeloxAC · FiveGuard (com Safe Events, VerifyToken e bypass temporário) · none |
 | **Celular** | lb-phone · qb-phone · smartphone (jesters-lab) · qs-smartphone · qs-smartphone-pro · gksphone · npwd · yseries · yflip-phone · roadphone · okokPhone · high-phone |
 | **Dispatch** | cd_dispatch · ps-dispatch · qs-dispatch · linden_outlawalert · framework fallback |
 | **Doorlock** | ox_doorlock · qb-doorlock · nui-doorlock · cd_doorlock · doors_creator |
@@ -208,6 +239,11 @@ Config.Logger = {
         flushInterval = 15,
     }
 }
+
+-- Segurança e Limites de API
+Config.MaxMoneyPerCall = 10000000 -- limite monetário por chamada
+Config.MaxItemPerCall  = 10000    -- limite de itens por chamada
+Config.AllowedResources = nil     -- whitelist de resources (nil = liberado)
 ```
 
 ## 🧱 Base modificada? Use `custom/`

@@ -19,6 +19,18 @@ local function dirtyMoney()
     return Config.DirtyMoney[framework().name] or {}
 end
 
+-- Verificação de autorização de scripts (Config.AllowedResources)
+local function isAllowedResource()
+    if not Config.AllowedResources or #Config.AllowedResources == 0 then return true end
+    local invoker = GetInvokingResource()
+    if not invoker or invoker == framezero.Resource then return true end
+    for _, res in ipairs(Config.AllowedResources) do
+        if res == invoker then return true end
+    end
+    framezero.Log("warn", "Acesso bloqueado: resource '%s' não está em Config.AllowedResources.", invoker)
+    return false
+end
+
 
 -- Eventos de jogador
 -- Cada callback guarda o resource que o registrou. Se esse resource para ou reinicia,
@@ -100,6 +112,28 @@ function API.GetJob(src)
     return framezero.Call("framework", "getJob", tonumber(src))
 end
 
+-- Altera status de serviço (Duty) do jogador (qbcore, qbox, esx se suportado)
+function API.SetDuty(src, onDuty)
+    if not isOnline(src) then return false end
+    local fw = framework() and framework().name
+    if fw == "qbcore" or fw == "qbox" then
+        local QB = exports["qb-core"]:GetCoreObject()
+        local p = QB.Functions.GetPlayer(tonumber(src))
+        if p and p.Functions and p.Functions.SetJobDuty then
+            p.Functions.SetJobDuty(onDuty == true)
+            return true
+        end
+    elseif fw == "esx" then
+        local ESX = exports["es_extended"]:getSharedObject()
+        local xPlayer = ESX.GetPlayerFromId(tonumber(src))
+        if xPlayer and xPlayer.setJobDuty then
+            xPlayer.setJobDuty(onDuty == true)
+            return true
+        end
+    end
+    return false
+end
+
 -- Gênero do jogador: "Male" ou "Female"
 function API.GetGender(src)
     if not isOnline(src) then return "Male" end
@@ -159,16 +193,26 @@ function API.GetMoney(src, account)
 end
 
 function API.AddMoney(src, amount, account)
+    if not isAllowedResource() then return false end
     amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) then return false end
+    if Config.MaxMoneyPerCall and Config.MaxMoneyPerCall > 0 and amount > Config.MaxMoneyPerCall then
+        framezero.Log("warn", "AddMoney abortado para src %s: quantia %s excede Config.MaxMoneyPerCall (%s)", src, amount, Config.MaxMoneyPerCall)
+        return false
+    end
     account = account or "cash"
     if account == "dirty" and dirtyMoney().item then return API.AddItem(src, dirtyMoney().item, amount) end
     return framezero.Call("framework", "addMoney", tonumber(src), amount, account) == true
 end
 
 function API.RemoveMoney(src, amount, account)
+    if not isAllowedResource() then return false end
     amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) then return false end
+    if Config.MaxMoneyPerCall and Config.MaxMoneyPerCall > 0 and amount > Config.MaxMoneyPerCall then
+        framezero.Log("warn", "RemoveMoney abortado para src %s: quantia %s excede Config.MaxMoneyPerCall (%s)", src, amount, Config.MaxMoneyPerCall)
+        return false
+    end
     account = account or "cash"
     if account == "dirty" and dirtyMoney().item then return API.RemoveItem(src, dirtyMoney().item, amount) end
     return framezero.Call("framework", "removeMoney", tonumber(src), amount, account) == true
@@ -200,14 +244,24 @@ function API.CanCarry(src, item, amount, metadata)
 end
 
 function API.AddItem(src, item, amount, metadata)
+    if not isAllowedResource() then return false end
     amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) or type(item) ~= "string" then return false end
+    if Config.MaxItemPerCall and Config.MaxItemPerCall > 0 and amount > Config.MaxItemPerCall then
+        framezero.Log("warn", "AddItem abortado para src %s (%s): quantia %s excede Config.MaxItemPerCall (%s)", src, item, amount, Config.MaxItemPerCall)
+        return false
+    end
     return inv("addItem", tonumber(src), item, amount, metadata) == true
 end
 
 function API.RemoveItem(src, item, amount, metadata)
+    if not isAllowedResource() then return false end
     amount = framezero.PositiveInt(amount)
     if not amount or not isOnline(src) or type(item) ~= "string" then return false end
+    if Config.MaxItemPerCall and Config.MaxItemPerCall > 0 and amount > Config.MaxItemPerCall then
+        framezero.Log("warn", "RemoveItem abortado para src %s (%s): quantia %s excede Config.MaxItemPerCall (%s)", src, item, amount, Config.MaxItemPerCall)
+        return false
+    end
     return inv("removeItem", tonumber(src), item, amount, metadata) == true
 end
 
@@ -225,6 +279,55 @@ end
 
 function API.GetItemWeight(item)
     return tonumber(inv("getItemWeight", item)) or 0
+end
+
+-- Fecha a interface do inventário do jogador (evita telas sobrepostas ao abrir minigames/hacks)
+function API.CloseInventory(src)
+    if not isOnline(src) then return end
+    src = tonumber(src)
+    if framezero.IsStarted("ox_inventory") and exports["ox_inventory"].closeInventory then
+        exports["ox_inventory"]:closeInventory(src)
+    elseif framezero.IsStarted("snt-inventory-pro") or framezero.IsStarted("snt-inventory") then
+        TriggerClientEvent("snt-inventory:client:close", src)
+    elseif framezero.IsStarted("qs-inventory") or framezero.IsStarted("qs-inventory-pro") then
+        TriggerClientEvent("qs-inventory:client:closeInventory", src)
+    elseif framezero.IsStarted("qb-inventory") then
+        TriggerClientEvent("inventory:client:close", src)
+    elseif framezero.IsStarted("codem-inventory") then
+        TriggerClientEvent("codem-inventory:client:close", src)
+    else
+        TriggerClientEvent("framezero_bridge:client:closeInventory", src)
+    end
+    if framezero.IsStarted("heyy_houses") then
+        TriggerClientEvent("heyy_houses:closeUI", src)
+    end
+end
+
+-- Registra um item usável de forma unificada
+function API.RegisterUsableItem(item, cb)
+    local fw = framework() and framework().name
+    if fw == "qbcore" or fw == "qbox" then
+        local QB = exports["qb-core"]:GetCoreObject()
+        QB.Functions.CreateUseableItem(item, function(src, itemData)
+            cb(src, itemData)
+        end)
+    elseif fw == "esx" then
+        local ESX = exports["es_extended"]:getSharedObject()
+        ESX.RegisterUsableItem(item, function(src)
+            cb(src)
+        end)
+    elseif fw == "vrp" then
+        if vRP and vRP.defInventoryItem then
+            vRP.defInventoryItem(item, item, function(args)
+                local src = args.player or args.source
+                if src then cb(src) end
+            end)
+        elseif vRP and vRP.actInventoryItem then
+            vRP.actInventoryItem(item, function(player, choice)
+                cb(player)
+            end)
+        end
+    end
 end
 
 
@@ -252,7 +355,7 @@ function API.GeneratePlate()
 end
 
 -- target: source online OU id do personagem. Retorna a placa ou false.
--- opts: { plate?, garage?, type? }
+-- opts: { plate?, garage?, type?, keys? } (keys padrão: true quando online)
 function API.GiveVehicle(target, model, opts)
     if type(model) ~= "string" or model == "" then return false end
     opts = opts or {}
@@ -260,13 +363,38 @@ function API.GiveVehicle(target, model, opts)
     if not id then return false end
     local plate = opts.plate or API.GeneratePlate()
     local ok, finalPlate = vehicles("giveVehicle", id, model, plate, opts)
-    return ok and (finalPlate or plate) or false
+    local plateAssigned = ok and (finalPlate or plate) or false
+    if plateAssigned and opts.keys ~= false and isOnline(target) and framezero.VehicleKeys then
+        framezero.VehicleKeys.Give(target, plateAssigned)
+    end
+    return plateAssigned
 end
 
 function API.HasVehicle(target, model)
     local id = isOnline(target) and API.GetPlayerId(target) or (target and tostring(target))
     if not id then return false end
     return vehicles("hasVehicle", id, model) == true
+end
+
+-- Proprietário do veículo pela placa (citizenid, identifier ou user_id)
+function API.GetVehicleOwner(plate)
+    if type(plate) ~= "string" or plate == "" then return nil end
+    local trimmed = plate:gsub("^%s*(.-)%s*$", "%1")
+    local padded = ("%-8s"):format(trimmed)
+    local fw = framework() and framework().name
+    local sql, params
+    if fw == "esx" then
+        sql = "SELECT owner FROM owned_vehicles WHERE plate = ? OR plate = ? LIMIT 1"
+        params = { trimmed, padded }
+    elseif fw == "vrp" then
+        sql = "SELECT user_id FROM vrp_user_vehicles WHERE vehicle = ? OR plate = ? LIMIT 1"
+        params = { trimmed, padded }
+    else
+        sql = "SELECT citizenid FROM player_vehicles WHERE plate = ? OR plate = ? LIMIT 1"
+        params = { trimmed, padded }
+    end
+    local res = framezero.DB.Scalar(sql, params)
+    return res and tostring(res) or nil
 end
 
 
@@ -371,10 +499,26 @@ API.RegisterCallback = framezero.Callback.Register
 API.AwaitClient = framezero.Callback.AwaitClient
 API.DB = framezero.DB
 
--- Módulos Adicionais (Dispatch, Doorlock, Logger)
+-- Módulos Adicionais (Dispatch, Doorlock, Logger, Anticheat)
 API.Dispatch = function(data) return framezero.Dispatch.Send(data) end
 API.SetDoorState = function(doorId, locked, options) return framezero.Doorlock.SetState(doorId, locked, options) end
 API.LogDiscord = function(title, message, opts) return framezero.Logger.LogDiscord(title, message, opts) end
+API.Anticheat = framezero.Anticheat
+
+-- Chaves de Veículos
+API.GiveVehicleKeys = function(target, plate) return framezero.VehicleKeys and framezero.VehicleKeys.Give(target, plate) end
+API.RemoveVehicleKeys = function(target, plate) return framezero.VehicleKeys and framezero.VehicleKeys.Remove(target, plate) end
+
+-- Contas de Sociedade / Empresas
+API.GetSocietyMoney = function(name) return framezero.Society and framezero.Society.GetMoney(name) or 0 end
+API.AddSocietyMoney = function(name, amount) return framezero.Society and framezero.Society.AddMoney(name, amount) or false end
+API.RemoveSocietyMoney = function(name, amount) return framezero.Society and framezero.Society.RemoveMoney(name, amount) or false end
+
+-- Stashes Compartilhados
+API.RegisterStash = function(id, label, slots, maxWeight, owner) return framezero.Stashes and framezero.Stashes.Register(id, label, slots, maxWeight, owner) or false end
+API.StashCount = function(id, item) return framezero.Stashes and framezero.Stashes.Count(id, item) or 0 end
+API.StashAdd = function(id, item, count, metadata) return framezero.Stashes and framezero.Stashes.Add(id, item, count, metadata) or false end
+API.StashRemove = function(id, item, count, metadata) return framezero.Stashes and framezero.Stashes.Remove(id, item, count, metadata) or false end
 
 function API.Info()
     return {

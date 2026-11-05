@@ -14,13 +14,14 @@ Config.UpdateUrl   = ""
 -- "auto" escolhe pelo que está rodando no servidor.
 -- Coloque o nome para forçar um adaptador.
 Config.Framework = "auto"       -- auto · esx · qbcore · qbox · vrp · tnet · ndcore · oxcore · standalone
-Config.Inventory = "auto"       -- auto · framework · ox_inventory · qs-inventory · tnet_inventory · codem-inventory · core_inventory · ak47_inventory
-Config.Vehicles  = "auto"       -- auto · framework · nation-garages · qbx_vehicles
+Config.Inventory = "auto"       -- auto · framework · ox_inventory · snt-inventory · qs-inventory · tnet_inventory · codem-inventory · core_inventory · ak47_inventory
+Config.Vehicles  = "auto"       -- auto · framework · nation-garages · qs-advancedgarages · nn_garages · qbx_vehicles
 Config.Notify    = "auto"       -- auto · framework · ox_lib · okokNotify · mythic_notify
 Config.Target    = "auto"       -- auto · ox_target · qb-target · custom (o seu, em custom/client.lua) · none
 Config.Progress  = "auto"       -- auto · ox_lib · framezero
 Config.Dispatch  = "auto"       -- auto · cd_dispatch · ps-dispatch · qs-dispatch · linden_outlawalert · framework · none
 Config.Doorlock  = "auto"       -- auto · ox_doorlock · qb-doorlock · nui-doorlock · cd_doorlock · doors_creator · none
+Config.Anticheat = "auto"       -- auto · feloxac · fiveguard · none (evita falsos positivos em minigames/teleportes)
 
 -- Celular (e-mail, SMS, notificação no telefone do jogador)
 -- auto detecta o que está rodando. "none" desliga a integração.
@@ -76,3 +77,10 @@ Config.Keys = {
 -- Segurança
 -- Chamadas cliente → servidor por jogador, por segundo
 Config.CallbackRateLimit = 20
+
+-- Limites máximos por chamada da API (evita exploits de scripts que invocam a bridge)
+Config.MaxMoneyPerCall = 10000000 -- Max 10.000.000 por chamada (nil ou 0 para desativar)
+Config.MaxItemPerCall  = 10000    -- Max 10.000 unidades por chamada (nil ou 0 para desativar)
+
+-- Lista de resources autorizados a chamar a bridge (nil ou {} permite qualquer resource)
+Config.AllowedResources = nil

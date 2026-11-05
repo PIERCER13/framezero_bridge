@@ -1,4 +1,3 @@
--- Dispatch no cliente
 -- Permite que scripts de assalto, drogas, perseguição acionem a polícia com facilidade.
 -- Uso: framezero.Dispatch({ code = "10-90", title = "Assalto a Loja", message = "Disparo de alarme", coords = vec3(...) })
 

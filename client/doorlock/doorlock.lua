@@ -1,4 +1,3 @@
--- Controle de portas / trancas no cliente
 -- Uso: framezero.SetDoorState(doorId, locked, options)
 
 framezero = framezero or {}

@@ -28,7 +28,7 @@ local NAMES = {
     getBank    = { "getBankMoney", "GetBank", "getBank" },
     giveBank   = { "giveBankMoney", "GiveBank", "addBank" },
     setBank    = { "setBankMoney" },
-    payBank    = { "tryWithdraw", "PaymentBank", "paymentBank" },
+    payBank    = { "tryBankPayment", "PaymentBank", "paymentBank", "tryWithdraw" },
     revive     = { "Revive" },
 }
 
