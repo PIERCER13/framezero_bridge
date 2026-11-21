@@ -1,8 +1,3 @@
--- No fxmanifest do script:
--- shared_script "@framezero_bridge/import.lua"
--- Depois é só usar a global framezero, no servidor ou no cliente:
--- framezero.Notify(source, "success", "Pronto!")
-
 local BRIDGE = "framezero_bridge"
 local api
 

@@ -4,14 +4,9 @@ framezero.Resource = GetCurrentResourceName()
 framezero.Version  = GetResourceMetadata(framezero.Resource, "version", 0) or "0.0.0"
 framezero.IsServer = IsDuplicityVersion()
 framezero.Ready    = false
-
--- Adaptadores registrados por tipo, e o escolhido de cada tipo
 framezero.Adapters = { framework = {}, inventory = {}, vehicles = {}, notify = {}, target = {}, progress = {}, phone = {}, dispatch = {}, doorlock = {} }
 framezero.Active   = {}
-
--- Funções sobrescritas pelo dono do servidor (custom/server.lua, custom/client.lua)
 framezero.Custom = framezero.Custom or {}
-
 
 -- Idioma
 local function lang()
@@ -24,8 +19,6 @@ function framezero.L(key, ...)
     return text
 end
 
-
--- Console: verde = info, amarelo = aviso, vermelho = erro
 local TAG = "^3[framezero]^0 "
 local LEVEL_COLOR = { info = "^2", warn = "^3", error = "^1", debug = "^5" }
 
@@ -42,9 +35,6 @@ function framezero.Banner(lines)
     end
 end
 
-
--- Adaptadores
--- def: { priority = n, detect = function() -> bool, init = function() -> bool, ...métodos }
 function framezero.RegisterAdapter(kind, name, def)
     def.name = name
     def.priority = def.priority or 0
@@ -89,9 +79,6 @@ function framezero.Call(kind, method, ...)
     return fn(...)
 end
 
-
--- Tipos de notificação aceitos: success · error · warning · info
--- (também aceita os nomes em português usados por bases vRP)
 local NOTIFY_ALIASES = {
     success = "success", sucesso = "success", verde = "success",
     error = "error", erro = "error", negado = "error", vermelho = "error",
