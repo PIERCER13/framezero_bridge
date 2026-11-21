@@ -48,10 +48,8 @@ kbd { display: inline-block; min-width: 22px; padding: 2px 6px; background: var(
 .fz-progress-track i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #b88a23, var(--fz-gold)); }
 .fz-progress.cancelled .fz-progress-track i { background: var(--fz-error); }
 
-/* Texto de ajuda */
 .fz-text { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); background: var(--fz-bg); border-left: 3px solid var(--fz-gold); padding: 10px 14px; font-size: 13px; font-weight: 600; }
 
-/* Notificações */
 .fz-notify { position: absolute; top: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; width: 300px; }
 .fz-toast { background: var(--fz-bg); border: 1px solid var(--fz-line); border-left: 3px solid var(--fz-info); padding: 10px 14px; font-size: 13px; line-height: 1.35; animation: fz-slide 0.2s ease-out; }
 .fz-toast.success { border-left-color: var(--fz-success); }
