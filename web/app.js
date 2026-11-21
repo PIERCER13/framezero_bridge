@@ -4,7 +4,6 @@ const $ = (id) => document.getElementById(id);
 const post = (name, data = {}) =>
   fetch(`https://${RESOURCE}/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
 
-// Prompt
 function openPrompt({ title, placeholder, strings }) {
   $('prompt-title').textContent = title || strings.promptTitle;
   $('prompt-input').value = '';
@@ -23,7 +22,6 @@ $('prompt-input').addEventListener('keydown', (e) => {
   if (e.key === 'Escape') post('prompt:cancel');
 });
 
-// Solicitação
 let requestTimer;
 function openRequest({ message, timeout, strings }) {
   $('request-title').textContent = strings.requestTitle;
@@ -46,7 +44,6 @@ const closeRequest = () => {
   $('request').classList.add('hidden');
 };
 
-// Progresso
 let progressFrame;
 function startProgress({ label, duration }) {
   const box = $('progress');
@@ -69,7 +66,6 @@ function stopProgress({ cancelled }) {
   setTimeout(() => box.classList.add('hidden'), cancelled ? 600 : 150);
 }
 
-// Notificação
 function notify({ kind, message, duration }) {
   const el = document.createElement('div');
   el.className = `fz-toast ${kind || 'info'}`;
