@@ -1,9 +1,3 @@
--- local framezero = exports.framezero_bridge:GetFramezero()
--- framezero.AddItem(source, "agua", 2)
---
--- Toda função pode ser trocada em custom/server.lua:
--- framezero.Custom.GiveVehicle = function(target, model, opts) ... end
-
 local API = {}
 framezero.Internal = { loaded = {}, unloaded = {} }
 
@@ -14,12 +8,10 @@ local function isOnline(src)
     return src ~= nil and GetPlayerName(src) ~= nil
 end
 
--- Item e conta de dinheiro sujo do framework atual (Config.DirtyMoney)
 local function dirtyMoney()
     return Config.DirtyMoney[framework().name] or {}
 end
 
--- Verificação de autorização de scripts (Config.AllowedResources)
 local function isAllowedResource()
     if not Config.AllowedResources or #Config.AllowedResources == 0 then return true end
     local invoker = GetInvokingResource()
@@ -31,12 +23,6 @@ local function isAllowedResource()
     return false
 end
 
-
--- Eventos de jogador
--- Cada callback guarda o resource que o registrou. Se esse resource para ou reinicia,
--- o funcref fica "morto" e estouraria "Execution of function reference in script host
--- failed" a cada evento, pra sempre — então ele é removido (no onResourceStop e, por
--- segurança, na primeira vez que falha assim).
 local function runCallbacks(list, label, ...)
     local dead
     for i = 1, #list do
@@ -66,7 +52,6 @@ end
 function API.OnPlayerLoaded(cb)   framezero.Internal.loaded[#framezero.Internal.loaded + 1]     = { cb = cb, res = GetInvokingResource() } end
 function API.OnPlayerUnloaded(cb) framezero.Internal.unloaded[#framezero.Internal.unloaded + 1] = { cb = cb, res = GetInvokingResource() } end
 
--- Remove os callbacks de um resource assim que ele para (evita funcref morto).
 AddEventHandler("onResourceStop", function(res)
     if res == framezero.Resource then return end
     for _, list in ipairs({ framezero.Internal.loaded, framezero.Internal.unloaded }) do
@@ -76,9 +61,6 @@ AddEventHandler("onResourceStop", function(res)
     end
 end)
 
-
--- Jogador
--- ID do personagem (identifier · citizenid · user_id/passaporte), sempre string
 function API.GetPlayerId(src)
     if not isOnline(src) then return nil end
     local id = framezero.Call("framework", "getId", tonumber(src))
@@ -90,7 +72,6 @@ function API.GetSource(id)
     return framezero.Call("framework", "getSource", id)
 end
 
--- Lista de sources online (mesmo formato em todos os frameworks)
 function API.GetPlayers()
     return framezero.Call("framework", "getPlayers") or {}
 end
@@ -100,19 +81,16 @@ function API.GetName(src)
     return framezero.Call("framework", "getName", tonumber(src)) or GetPlayerName(src)
 end
 
--- Grupo, permissão, job ou ACE (o que o framework entender por permissão)
 function API.HasPermission(src, permission)
     if not isOnline(src) or type(permission) ~= "string" then return false end
     return framezero.Call("framework", "hasPermission", tonumber(src), permission) == true
 end
 
--- { name, label, grade, gradeLabel, onDuty } ou nil
 function API.GetJob(src)
     if not isOnline(src) then return nil end
     return framezero.Call("framework", "getJob", tonumber(src))
 end
 
--- Altera status de serviço (Duty) do jogador (qbcore, qbox, esx se suportado)
 function API.SetDuty(src, onDuty)
     if not isOnline(src) then return false end
     local fw = framework() and framework().name
@@ -183,8 +161,6 @@ end
 
 
 -- Dinheiro
--- account: "cash" (padrão) · "bank" · "dirty"
-
 function API.GetMoney(src, account)
     if not isOnline(src) then return 0 end
     account = account or "cash"
@@ -217,10 +193,6 @@ function API.RemoveMoney(src, amount, account)
     if account == "dirty" and dirtyMoney().item then return API.RemoveItem(src, dirtyMoney().item, amount) end
     return framezero.Call("framework", "removeMoney", tonumber(src), amount, account) == true
 end
-
-
--- Itens
--- Usa o inventário detectado (ox, qs) ou o do próprio framework.
 
 local function inv(method, ...)
     local adapter = framezero.Active.inventory
@@ -265,7 +237,6 @@ function API.RemoveItem(src, item, amount, metadata)
     return inv("removeItem", tonumber(src), item, amount, metadata) == true
 end
 
--- Lista de { name, label, amount, slot?, metadata?, weight? }
 function API.GetInventory(src)
     if not isOnline(src) then return {} end
     local list = inv("getInventory", tonumber(src)) or {}
@@ -330,7 +301,6 @@ function API.RegisterUsableItem(item, cb)
     end
 end
 
-
 -- Veículos
 local function vehicles(method, ...)
     local adapter = framezero.Active.vehicles
@@ -355,7 +325,6 @@ function API.GeneratePlate()
 end
 
 -- target: source online OU id do personagem. Retorna a placa ou false.
--- opts: { plate?, garage?, type?, keys? } (keys padrão: true quando online)
 function API.GiveVehicle(target, model, opts)
     if type(model) ~= "string" or model == "" then return false end
     opts = opts or {}
@@ -399,7 +368,6 @@ end
 
 
 -- Interface
--- kind: success · error · warning · info (aceita sucesso/negado/aviso)
 function API.Notify(src, kind, message, duration)
     if not isOnline(src) then return end
     kind, duration = framezero.NotifyType(kind), tonumber(duration) or 5000
@@ -439,7 +407,6 @@ end
 -- Integra com o celular detectado (lb-phone, qb-phone, ...). Se nenhum for
 -- detectado, as funções retornam nil/false (e avisam uma vez no console).
 -- target: source online OU número do telefone (string).
-
 local function phoneCall(method, ...)
     if not framezero.Active.phone then return nil end
     return framezero.Call("phone", method, ...)
@@ -452,15 +419,12 @@ function API.GetPhoneNumber(src)
     return n and tostring(n) or nil
 end
 
--- Resolve um target (source online OU número já pronto) para o número do telefone.
 local function toPhoneNumber(target)
     if isOnline(target) then return API.GetPhoneNumber(target) end
     local n = target ~= nil and tostring(target) or ""
     return n ~= "" and n or nil
 end
 
--- Envia um e-mail no app de e-mail do celular.
--- data: { subject?, message, sender? }  → true/false
 function API.SendMail(target, data)
     data = data or {}
     local number = toPhoneNumber(target)
@@ -472,9 +436,6 @@ function API.SendMail(target, data)
     }) == true
 end
 
--- Envia um SMS. sender = número/nome de origem (opcional).  → true/false
--- Passa também o source (quando o target é um jogador online), porque alguns
--- celulares (ex.: smartphone/jesters-lab) criam o SMS pelo client do jogador.
 function API.SendMessage(target, message, sender)
     if type(message) ~= "string" then return false end
     local src = isOnline(target) and tonumber(target) or nil
@@ -484,8 +445,6 @@ function API.SendMessage(target, message, sender)
     return phoneCall("sendMessage", number, tostring(message), sender, src) == true
 end
 
--- Notificação na tela do celular.
--- data: { app?, title?, content }  → true/false
 function API.PhoneNotify(src, data)
     if not isOnline(src) then return false end
     data = data or {}
@@ -493,13 +452,10 @@ function API.PhoneNotify(src, data)
     return phoneCall("notify", tonumber(src), { app = data.app, title = data.title, content = data.content }) == true
 end
 
-
--- Callbacks e banco
 API.RegisterCallback = framezero.Callback.Register
 API.AwaitClient = framezero.Callback.AwaitClient
 API.DB = framezero.DB
 
--- Módulos Adicionais (Dispatch, Doorlock, Logger, Anticheat)
 API.Dispatch = function(data) return framezero.Dispatch.Send(data) end
 API.SetDoorState = function(doorId, locked, options) return framezero.Doorlock.SetState(doorId, locked, options) end
 API.LogDiscord = function(title, message, opts) return framezero.Logger.LogDiscord(title, message, opts) end
@@ -509,12 +465,10 @@ API.Anticheat = framezero.Anticheat
 API.GiveVehicleKeys = function(target, plate) return framezero.VehicleKeys and framezero.VehicleKeys.Give(target, plate) end
 API.RemoveVehicleKeys = function(target, plate) return framezero.VehicleKeys and framezero.VehicleKeys.Remove(target, plate) end
 
--- Contas de Sociedade / Empresas
 API.GetSocietyMoney = function(name) return framezero.Society and framezero.Society.GetMoney(name) or 0 end
 API.AddSocietyMoney = function(name, amount) return framezero.Society and framezero.Society.AddMoney(name, amount) or false end
 API.RemoveSocietyMoney = function(name, amount) return framezero.Society and framezero.Society.RemoveMoney(name, amount) or false end
 
--- Stashes Compartilhados
 API.RegisterStash = function(id, label, slots, maxWeight, owner) return framezero.Stashes and framezero.Stashes.Register(id, label, slots, maxWeight, owner) or false end
 API.StashCount = function(id, item) return framezero.Stashes and framezero.Stashes.Count(id, item) or 0 end
 API.StashAdd = function(id, item, count, metadata) return framezero.Stashes and framezero.Stashes.Add(id, item, count, metadata) or false end
@@ -535,16 +489,11 @@ function API.Info()
     }
 end
 
-
--- O cliente pergunta qual framework/variante está ativo (notificação, estilo vRP)
 framezero.Callback.Register("info", function()
     while not framezero.Ready do Wait(100) end
     return API.Info()
 end)
 
-
--- Publicação
--- Cada função pública consulta framezero.Custom primeiro.
 local Public = {}
 for name, fn in pairs(API) do
     if type(fn) == "function" then

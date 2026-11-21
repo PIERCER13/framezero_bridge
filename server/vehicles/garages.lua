@@ -1,7 +1,3 @@
--- Sem garagem detectada, a bridge usa a tabela de veículos do
--- próprio framework (adaptador "framework").
-
--- nation-garages (vRP)
 local nation = function() return exports["nation-garages"] end
 
 framezero.RegisterAdapter("vehicles", "nation-garages", {
@@ -26,8 +22,6 @@ framezero.RegisterAdapter("vehicles", "nation-garages", {
     end,
 })
 
-
--- qbx_vehicles (Qbox)
 framezero.RegisterAdapter("vehicles", "qbx_vehicles", {
     priority = 20,
 
