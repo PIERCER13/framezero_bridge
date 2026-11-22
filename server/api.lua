@@ -356,7 +356,8 @@ function API.GetVehicleOwner(plate)
         sql = "SELECT owner FROM owned_vehicles WHERE plate = ? OR plate = ? LIMIT 1"
         params = { trimmed, padded }
     elseif fw == "vrp" then
-        sql = "SELECT user_id FROM vrp_user_vehicles WHERE vehicle = ? OR plate = ? LIMIT 1"
+        -- vRP/Creative: a placa do veiculo e o registro (registration) do dono.
+        sql = "SELECT user_id FROM vrp_user_identities WHERE registration = ? OR registration = ? LIMIT 1"
         params = { trimmed, padded }
     else
         sql = "SELECT citizenid FROM player_vehicles WHERE plate = ? OR plate = ? LIMIT 1"
