@@ -266,6 +266,8 @@ end
 
 <div align="center">
 
-**[PIERCER13](https://github.com/PIERCER13)** · Discord **@piercer** · [discord.gg/HtEQZtmEPz](https://discord.gg/HtEQZtmEPz)
+**FrameZero Development** · Developer: **PIERCER**
+
+[Tebex](https://framezero.store/) · [Discord](https://discord.gg/HtEQZtmEPz) · [GitHub](https://github.com/PIERCER13) · [YouTube](https://www.youtube.com/@framezerodevelopment) · [Instagram](https://www.instagram.com/framezerodevelopment) · [TikTok](https://www.tiktok.com/@framezerodevelopment)
 
 </div>
