@@ -9,7 +9,7 @@ Requires: framezero_bridge (free, included). Works on ESX, QBCore, Qbox, vRP, vR
 - Auto-detects inventory, garages, notifications, target and more
 - `custom/` folder for overrides
 
-Config and locales are open; the rest is protected by Cfx.re Asset Escrow. One license per server. Support on Discord: discord.gg/HtEQZtmEPz
+Config and locales are open; the rest is protected by Cfx.re Asset Escrow. One license per server. Support on Discord: discord.gg/framezerodevelopment
 
 ## PT-BR
 **Uma API para todos os frameworks de FiveM. Dependência gratuita dos produtos FrameZero.**
@@ -20,4 +20,4 @@ Requer: framezero_bridge (gratuita, inclusa). Funciona em ESX, QBCore, Qbox, vRP
 - Detecta inventário, garagens, notificações, target e mais
 - Pasta `custom/` para overrides
 
-Config e locales abertos; o resto é protegido pelo Cfx.re Asset Escrow. Uma licença por servidor. Suporte no Discord: discord.gg/HtEQZtmEPz
+Config e locales abertos; o resto é protegido pelo Cfx.re Asset Escrow. Uma licença por servidor. Suporte no Discord: discord.gg/framezerodevelopment
