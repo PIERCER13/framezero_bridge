@@ -2,7 +2,7 @@
 
 **Product / Produto:** FrameZero Bridge
 **Author / Autor:** FrameZero (PIERCER)
-**Contact / Contato:** discord.gg/HtEQZtmEPz 
+**Contact / Contato:** discord.gg/framezerodevelopment 
 
 ---
 
