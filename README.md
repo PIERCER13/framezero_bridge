@@ -10,7 +10,7 @@ auto-detects the framework, inventory, garage, notification system, target, phon
 ![FiveM](https://img.shields.io/badge/FiveM-resource-F40552?style=for-the-badge)
 ![Frameworks](https://img.shields.io/badge/ESX%20%C2%B7%20QBCore%20%C2%B7%20Qbox%20%C2%B7%20vRP%20%C2%B7%20Creative-2b2b2b?style=for-the-badge)
 ![Lua](https://img.shields.io/badge/Lua-5.4-000080?style=for-the-badge&logo=lua&logoColor=white)
-[![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/HtEQZtmEPz)
+[![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/framezerodevelopment)
 
 [![Ler em Português](https://img.shields.io/badge/Ler%20em%20Portugu%C3%AAs-5865F2?style=for-the-badge&logo=googletranslate&logoColor=white)](README.pt-BR.md)
 
@@ -268,6 +268,6 @@ end
 
 **FrameZero Development** · Developer: **PIERCER**
 
-[Tebex](https://framezero.store/) · [Discord](https://discord.gg/HtEQZtmEPz) · [GitHub](https://github.com/PIERCER13) · [YouTube](https://www.youtube.com/@framezerodevelopment) · [Instagram](https://www.instagram.com/framezerodevelopment) · [TikTok](https://www.tiktok.com/@framezerodevelopment)
+[Tebex](https://framezero.store/) · [Discord](https://discord.gg/framezerodevelopment) · [GitHub](https://github.com/PIERCER13) · [YouTube](https://www.youtube.com/@framezerodevelopment) · [Instagram](https://www.instagram.com/framezerodevelopment) · [TikTok](https://www.tiktok.com/@framezerodevelopment)
 
 </div>
