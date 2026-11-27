@@ -24,7 +24,7 @@ Every FrameZero script talks to your server through **one** unified API, instead
 for every framework, inventory, and notification system. You install the bridge once; the scripts just use the
 global `framezero`. On most servers there is **nothing to configure** — everything in `config.lua` stays `"auto"`.
 
-> Author: **piercer** · Current version: **1.6.0**
+> Author: **piercer** · Current version: **1.6.1**
 
 ## 🚀 Installation
 
