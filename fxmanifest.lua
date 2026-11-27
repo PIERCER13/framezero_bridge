@@ -47,3 +47,12 @@ files {
     "web/style.css",
     "web/app.js",
 }
+
+escrow_ignore {
+    "*.lua",
+    "client/**/*.lua",
+    "custom/*.lua",
+    "locales/*.lua",
+    "server/**/*.lua",
+    "shared/*.lua",
+}
