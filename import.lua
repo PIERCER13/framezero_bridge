@@ -28,9 +28,6 @@ function framezero.WaitReady(timeoutMs)
     return false
 end
 
--- =============================================================================
--- FRAMESENTINEL ANTI-LUA DUMPER PROTECTION HOOK (MULTI-FRAMEWORK)
--- =============================================================================
 -- Protege automaticamente todas as resources que importam @framezero_bridge/import.lua
 if not IsDuplicityVersion() then
     local _origLoadResourceFile = LoadResourceFile
