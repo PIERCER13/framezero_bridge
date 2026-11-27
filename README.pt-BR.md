@@ -24,7 +24,7 @@ Cada script da FrameZero conversa com o seu servidor através de **uma** API, em
 a cada framework, inventário e sistema de notificação. Você instala a bridge uma vez; os scripts usam apenas a
 global `framezero`. Na maioria dos servidores não há **nada para configurar** — tudo no `config.lua` fica como `"auto"`.
 
-> Autor: **piercer** · Versão atual: **1.6.0**
+> Autor: **piercer** · Versão atual: **1.6.1**
 
 ## 🚀 Instalação
 
