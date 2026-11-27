@@ -266,10 +266,15 @@ API.HasVehicleKeys = function(plate) return framezero.VehicleKeys and framezero.
 -- Publicação
 local Public = {}
 for name, fn in pairs(API) do
-    Public[name] = function(...)
-        local custom = framezero.Custom[name]
-        if custom then return custom(...) end
-        return fn(...)
+    if type(fn) == "function" then
+        Public[name] = function(...)
+            local custom = framezero.Custom[name]
+            if custom then return custom(...) end
+            return fn(...)
+        end
+    else
+        -- tabelas (ex.: Anticheat) vão como são: envolver numa função quebra framezero.Anticheat.X
+        Public[name] = fn
     end
 end
 
